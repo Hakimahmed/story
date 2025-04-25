@@ -9,130 +9,117 @@
     @import url('https://fonts.googleapis.com/css2?family=Urdu+Najd+V3&display=swap');
 
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
     body {
       font-family: 'Roboto', sans-serif;
       background-color: #f0f2f5;
       padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
       color: #006163;
     }
 
-    .main-container {
+    .main-wrapper {
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .canvas-container {
+      display: flex;
       gap: 20px;
-      width: 100%;
-      max-width: 1400px; /* Limits the width of the main container */
+      justify-content: center;
+      margin-bottom: 20px;
     }
 
     .canvas-box {
-      background: white;
-      border-radius: 12px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       padding: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       border: 1px solid #ccc;
-      width: 360px;
-      height: 640px;
+      width: 300px;
     }
 
     canvas {
       width: 100%;
       height: auto;
-      border-radius: 8px;
       display: block;
+      border-radius: 8px;
     }
 
     .controls {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: stretch;
-      margin-top: 20px;
-      gap: 10px;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
     }
 
-    input[type="text"] {
-      font-size: 80px; /* Increased font size */
+    #headlineInput {
+      width: 320px;
       padding: 10px;
-      width: 100%;
-      border: 1px solid #ccc;
+      font-size: 18px;
       border-radius: 6px;
+      border: 1px solid #ccc;
       font-family: 'Urdu Najd V3', serif;
-      margin-top: 300px; /* Updated to 300px */
-      text-align: center;
-      color: #006163; /* Headline text color */
+      direction: rtl;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 10px;
     }
 
     button {
-      padding: 10px;
-      font-size: 16px;
+      padding: 10px 14px;
       background-color: #006163;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      transition: 0.3s ease;
+      font-size: 14px;
     }
 
     button:hover {
-      background-color: #004c4c;
-    }
-
-    .bottom-controls {
-      display: flex;
-      justify-content: center; /* Horizontal alignment of buttons */
-      gap: 20px;
-      width: 100%;
-      margin-top: 20px;
-    }
-
-    /* Adjust logo size and margin */
-    #logoImage {
-      width: 160px;
-      height: 160px;
-      position: absolute;
-      top: 140px;
-      left: 20px;
+      background-color: #004d4d;
     }
   </style>
 </head>
 <body>
   <h1>Story Image Generator</h1>
 
-  <div class="main-container">
-    <div class="canvas-box">
-      <canvas id="canvas" width="1080" height="1920"></canvas>
+  <div class="main-wrapper">
+    <div class="canvas-container">
+      <div class="canvas-box">
+        <canvas id="canvas" width="1080" height="1920"></canvas>
+      </div>
+      <div class="canvas-box">
+        <canvas id="newsCanvas" width="1080" height="1920"></canvas>
+      </div>
     </div>
 
-    <div class="canvas-box">
-      <canvas id="newsCanvas" width="1080" height="1920"></canvas>
+    <div class="controls">
+      <input type="text" id="headlineInput" placeholder="ہیڈ لائن یہاں لکھیں..." />
+      <div class="button-group">
+        <button id="stretchButton">Fit by Stretch</button>
+        <button id="fitLongestSideButton">Fit on Longest Side</button>
+        <button id="centerButton">Center Image</button>
+        <button id="generateButton">Generate Story</button>
+        <button id="downloadCanvasButton">Download Original</button>
+        <button id="downloadNewsButton">Download Story</button>
+      </div>
     </div>
-  </div>
-
-  <div class="bottom-controls">
-    <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
-    <button id="stretchButton">Fit by Stretch</button>
-    <button id="fitLongestSideButton">Fit on Longest Side</button>
-    <button id="centerButton">Center Image</button>
-    <button id="generateButton">Generate Story</button>
-    <button id="downloadCanvasButton">Download Original</button>
-    <button id="downloadNewsButton">Download Story</button>
   </div>
 
   <script>
@@ -140,6 +127,7 @@
     const ctx = canvas.getContext('2d');
     const newsCanvas = document.getElementById('newsCanvas');
     const newsCtx = newsCanvas.getContext('2d');
+
     const headlineInput = document.getElementById('headlineInput');
     const stretchButton = document.getElementById('stretchButton');
     const fitLongestSideButton = document.getElementById('fitLongestSideButton');
@@ -213,38 +201,24 @@
       drawImage();
     };
 
-    const generateNewsCanvas = () => {
-      const headline = headlineInput.value.trim();
-      if (!headline) return;
-      newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
-      newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
-
-      const canvasImage = new Image();
-      canvasImage.onload = function () {
-        newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
-        drawHeadline(newsCtx, headline);
-        newsCtx.drawImage(logoImage, newsCanvas.width - 160 - 20, 140, 160, 160); // Fixed logo size and position
-      };
-      canvasImage.src = canvas.toDataURL('image/png');
-    };
-
-    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = newsCanvas.height - 250) => {
+    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 300) => {
       const words = text.split(' ');
-      const lineHeight = 70;
+      const lineHeight = 80;
       let line = '';
       ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
+      ctx.textBaseline = 'top';
       ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-      ctx.shadowOffsetX = 3;
-      ctx.shadowOffsetY = 3;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
       ctx.shadowBlur = 0;
+      ctx.fillStyle = '#006163';
       ctx.direction = 'rtl';
 
       let yPos = y;
       for (let i = 0; i < words.length; i++) {
         let word = words[i];
         const isNumber = /^\d+$/.test(word);
-        ctx.font = `bold 80px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`; // Increased font size
+        ctx.font = `bold 70px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
         const testLine = line + word + ' ';
         const width = ctx.measureText(testLine).width;
         if (width > 900 && i > 0) {
@@ -256,6 +230,22 @@
         }
       }
       ctx.fillText(line.trim(), x, yPos);
+    };
+
+    const generateNewsCanvas = () => {
+      const headline = headlineInput.value.trim();
+      if (!headline) return;
+
+      newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
+      newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
+
+      const canvasImage = new Image();
+      canvasImage.onload = function () {
+        newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
+        drawHeadline(newsCtx, headline);
+        newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160);
+      };
+      canvasImage.src = canvas.toDataURL('image/png');
     };
 
     const downloadCanvas = () => {
