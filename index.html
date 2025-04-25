@@ -235,6 +235,10 @@
     const generateNewsCanvas = () => {
       const headline = headlineInput.value.trim();
       if (!headline) return;
+const newWidth = 966;  // Set the width to 966px
+const newHeight = 1202;  // Set the height to 1202px
+
+newsCtx.drawImage(canvasImage, 0, 0, newWidth, newHeight);
 
       newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
       newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
