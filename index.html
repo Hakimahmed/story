@@ -21,7 +21,7 @@
       overflow: hidden;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       height: 100vh;
     }
 
@@ -36,9 +36,17 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      width: 100%;
+      max-width: 1100px;
+      margin-top: 20px;
+    }
+
+    .canvas-container {
+      display: flex;
+      justify-content: space-between;
       gap: 20px;
-      width: 90%;
-      max-width: 1000px;
+      width: 100%;
+      max-width: 1100px;
     }
 
     .canvas-box {
@@ -65,14 +73,7 @@
       justify-content: center;
       align-items: stretch;
       gap: 10px;
-      margin-top: 10px;
-    }
-
-    .bottom-controls {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 300px;
+      margin-top: 20px;
     }
 
     input[type="text"] {
@@ -82,6 +83,14 @@
       border: 1px solid #ccc;
       border-radius: 6px;
       font-family: 'Urdu Najd V3', serif;
+    }
+
+    .bottom-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 300px;
+      margin-top: 20px;
     }
 
     button {
@@ -98,22 +107,33 @@
     button:hover {
       background-color: #004c4c;
     }
+
+    .headline-input-container {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
   <div class="main-container">
     <h1>Story Image Generator</h1>
 
-    <div class="canvas-box">
-      <canvas id="canvas" width="1080" height="1920"></canvas>
+    <div class="canvas-container">
+      <div class="canvas-box">
+        <canvas id="canvas" width="1080" height="1920"></canvas>
+      </div>
+      <div class="canvas-box">
+        <canvas id="newsCanvas" width="1080" height="1920"></canvas>
+      </div>
     </div>
 
-    <div class="canvas-box">
-      <canvas id="newsCanvas" width="1080" height="1920"></canvas>
+    <div class="headline-input-container">
+      <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
     </div>
 
     <div class="bottom-controls">
-      <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
       <button id="stretchButton">Fit by Stretch</button>
       <button id="fitLongestSideButton">Fit on Longest Side</button>
       <button id="centerButton">Center Image</button>
