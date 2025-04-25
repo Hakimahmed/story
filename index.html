@@ -19,6 +19,10 @@
       background-color: #f0f2f5;
       padding: 20px;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
 
     h1 {
@@ -29,9 +33,12 @@
 
     .main-container {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       gap: 20px;
+      width: 90%;
+      max-width: 1000px;
     }
 
     .canvas-box {
@@ -40,12 +47,14 @@
       padding: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       border: 1px solid #ccc;
-      width: 360px;
+      width: 1080px;
+      height: 1920px;
+      position: relative;
     }
 
     canvas {
       width: 100%;
-      height: auto;
+      height: 100%;
       border-radius: 8px;
       display: block;
     }
@@ -55,8 +64,15 @@
       flex-direction: column;
       justify-content: center;
       align-items: stretch;
-      margin-top: 20px;
       gap: 10px;
+      margin-top: 10px;
+    }
+
+    .bottom-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 300px;
     }
 
     input[type="text"] {
@@ -82,23 +98,12 @@
     button:hover {
       background-color: #004c4c;
     }
-
-    .bottom-controls {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 300px;
-      position: absolute;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
   </style>
 </head>
 <body>
-  <h1>Story Image Generator</h1>
-
   <div class="main-container">
+    <h1>Story Image Generator</h1>
+
     <div class="canvas-box">
       <canvas id="canvas" width="1080" height="1920"></canvas>
     </div>
@@ -204,16 +209,18 @@
 
       const canvasImage = new Image();
       canvasImage.onload = function () {
-        newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
+        // Drawing the image at fixed size 966x1202
+        newsCtx.drawImage(canvasImage, 0, 0, 966, 1202);
         drawHeadline(newsCtx, headline);
-        newsCtx.drawImage(logoImage, newsCanvas.width - 130, 50, 110, 110);
+        // Adjusted logo position and size
+        newsCtx.drawImage(logoImage, newsCanvas.width - 160 - 20, 130, 160, 160);
       };
       canvasImage.src = canvas.toDataURL('image/png');
     };
 
     const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = newsCanvas.height - 250) => {
       const words = text.split(' ');
-      const lineHeight = 70;
+      const lineHeight = 80; // Adjusted line height
       let line = '';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
@@ -227,7 +234,7 @@
       for (let i = 0; i < words.length; i++) {
         let word = words[i];
         const isNumber = /^\d+$/.test(word);
-        ctx.font = `bold 60px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
+        ctx.font = `bold 55px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`; // Adjusted font size
         const testLine = line + word + ' ';
         const width = ctx.measureText(testLine).width;
         if (width > 900 && i > 0) {
