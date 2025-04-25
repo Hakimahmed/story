@@ -203,7 +203,7 @@
 
     const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
       const words = text.split(' ');
-      const lineHeight = 95;
+      const lineHeight = 100;
       let line = '';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
@@ -218,7 +218,7 @@
       for (let i = 0; i < words.length; i++) {
         let word = words[i];
         const isNumber = /^\d+$/.test(word);
-        ctx.font = `bold 20pt ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
+        ctx.font = `bold 95px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
         const testLine = line + word + ' ';
         const width = ctx.measureText(testLine).width;
         if (width > 960 && i > 0) {
