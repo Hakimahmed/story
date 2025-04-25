@@ -1,142 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FB & Insta Story Generator</title>
-  
-  <!-- Import Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Urdu+Najd+V3&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Story Image Generator</title>
   <style>
-    /* General Reset and Body */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Urdu+Najd+V3&display=swap');
+
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
     }
 
     body {
-      font-family: 'Poppins', sans-serif; /* Default font */
-      background: linear-gradient(145deg, #f4f6f8, #ffffff);
-      color: #333;
-      padding: 40px;
+      font-family: 'Roboto', sans-serif;
+      background-color: #f0f2f5;
+      padding: 20px;
+      overflow: hidden;
     }
 
     h1 {
       text-align: center;
-      color: #004d4d;
-      font-size: 32px;
       margin-bottom: 20px;
-      font-weight: bold;
+      color: #006163;
     }
 
-    /* Main Container */
-    .container {
-      max-width: 1920px;
-      margin: 0 auto;
-    }
-
-    /* Section Layout */
-    .story-section {
+    .main-container {
       display: flex;
       justify-content: space-between;
-      gap: 40px;
-      margin-bottom: 40px;
+      align-items: flex-start;
+      gap: 20px;
     }
 
-    .story-box {
-      flex: 1;
-      background-color: #ffffff;
+    .canvas-box {
+      background: white;
       border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-    }
-
-    .story-box img {
-      width: 100%;
-      height: 100%;
-      border-radius: 8px;
-    }
-
-    /* Controls & Buttons */
-    .controls {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .controls button {
-      padding: 12px 20px;
-      margin: 8px;
-      border: none;
-      border-radius: 8px;
-      background-color: #006163;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .controls button:hover {
-      background-color: #004d4d;
-    }
-
-    /* Headline Input */
-    #headlineInput {
-      width: 80%;
-      padding: 12px;
-      font-size: 20px;
-      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       border: 1px solid #ccc;
-      margin-top: 20px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      background-color: #fafafa;
-      font-family: 'Poppins', sans-serif; /* Poppins for English Text */
+      width: 360px;
     }
 
-    #headlineInput::placeholder {
-      color: #888;
-    }
-
-    /* Canvas Styling */
-    #canvasContainer {
+    canvas {
       width: 100%;
-      background-color: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      position: relative;
-    }
-
-    /* Download Buttons */
-    .download-buttons {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .download-buttons button {
-      padding: 12px 24px;
-      background-color: #006163;
-      color: #fff;
-      border: none;
+      height: auto;
       border-radius: 8px;
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: stretch;
+      margin-top: 20px;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      font-size: 18px;
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-family: 'Urdu Najd V3', serif;
+    }
+
+    button {
+      padding: 10px;
       font-size: 16px;
+      background-color: #006163;
+      color: white;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
-      margin: 10px;
+      transition: 0.3s ease;
     }
 
-    .download-buttons button:hover {
-      background-color: #004d4d;
+    button:hover {
+      background-color: #004c4c;
     }
 
-    /* Urdu Text Styling */
-    .urdu-text {
-      font-family: 'Urdu Najd V3', serif; /* Urdu font */
-      font-size: 30px;
-      color: #006163;
-      text-align: center;
+    .bottom-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 300px;
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
     }
-
   </style>
 </head>
+<body>
+  <h1>Story Image Generator</h1>
+
+  <div class="main-container">
+    <div class="canvas-box">
+      <canvas id="canvas" width="1080" height="1920"></canvas>
+    </div>
+
+    <div class="canvas-box">
+      <canvas id="newsCanvas" width="1080" height="1920"></canvas>
+    </div>
+
+    <div class="bottom-controls">
+      <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
+      <button id="stretchButton">Fit by Stretch</button>
+      <button id="fitLongestSideButton">Fit on Longest Side</button>
+      <button id="centerButton">Center Image</button>
+      <button id="generateButton">Generate Story</button>
+      <button id="downloadCanvasButton">Download Original</button>
+      <button id="downloadNewsButton">Download Story</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const newsCanvas = document.getElementById('newsCanvas');
+    const newsCtx = newsCanvas.getContext('2d');
+    const headlineInput = document.getElementById('headlineInput');
+    const stretchButton = document.getElementById('stretchButton');
+    const fitLongestSideButton = document.getElementById('fitLongestSideButton');
+    const centerButton = document.getElementById('centerButton');
+    const generateButton = document.getElementById('generateButton');
+    const downloadCanvasButton = document.getElementById('downloadCanvasButton');
+    const downloadNewsButton = document.getElementById('downloadNewsButton');
+
+    const backgroundImage = new Image();
+    backgroundImage.src = 'storybg.jpg';
+
+    const logoImage = new Image();
+    logoImage.src = 'aaj-logo.png';
+
+    let image = null;
+    let offsetX = 0;
+    let offsetY = 0;
+    let scale = 1;
+    let imageCounter = 1;
+
+    const handlePaste = (e) => {
+      const items = e.clipboardData.items;
+      for (const item of items) {
+        if (item.kind === 'file' && item.type.includes('image')) {
+          const blob = item.getAsFile();
+          const reader = new FileReader();
+          reader.onload = (evt) => loadImage(evt.target.result);
+          reader.readAsDataURL(blob);
+        }
+      }
+    };
+
+    const loadImage = (src) => {
+      image = new Image();
+      image.onload = () => fitByStretch();
+      image.src = src;
+    };
+
+    const drawImage = () => {
+      if (!image) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(image, offsetX, offsetY, image.width * scale, image.height * scale);
+    };
+
+    const fitByStretch = () => {
+      if (!image) return;
+      offsetX = offsetY = 0;
+      const canvasRatio = canvas.width / canvas.height;
+      const imageRatio = image.width / image.height;
+      if (imageRatio > canvasRatio) {
+        scale = canvas.height / image.height;
+        offsetX = (canvas.width - image.width * scale) / 2;
+      } else {
+        scale = canvas.width / image.width;
+        offsetY = (canvas.height - image.height * scale) / 2;
+      }
+      drawImage();
+    };
+
+    const fitOnLongestSide = () => {
+      if (!image) return;
+      offsetX = offsetY = 0;
+      scale = image.width > image.height ? canvas.width / image.width : canvas.height / image.height;
+      drawImage();
+    };
+
+    const centerImage = () => {
+      if (!image) return;
+      offsetX = (canvas.width - image.width * scale) / 2;
+      offsetY = (canvas.height - image.height * scale) / 2;
+      drawImage();
+    };
+
+    const generateNewsCanvas = () => {
+      const headline = headlineInput.value.trim();
+      if (!headline) return;
+      newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
+      newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
+
+      const canvasImage = new Image();
+      canvasImage.onload = function () {
+        newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
+        drawHeadline(newsCtx, headline);
+        newsCtx.drawImage(logoImage, newsCanvas.width - 130, 50, 110, 110);
+      };
+      canvasImage.src = canvas.toDataURL('image/png');
+    };
+
+    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = newsCanvas.height - 250) => {
+      const words = text.split(' ');
+      const lineHeight = 70;
+      let line = '';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
+      ctx.shadowBlur = 0;
+      ctx.direction = 'rtl';
+
+      let yPos = y;
+      for (let i = 0; i < words.length; i++) {
+        let word = words[i];
+        const isNumber = /^\d+$/.test(word);
+        ctx.font = `bold 60px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
+        const testLine = line + word + ' ';
+        const width = ctx.measureText(testLine).width;
+        if (width > 900 && i > 0) {
+          ctx.fillText(line.trim(), x, yPos);
+          line = word + ' ';
+          yPos += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line.trim(), x, yPos);
+    };
+
+    const downloadCanvas = () => {
+      const link = document.createElement('a');
+      link.download = `card_${imageCounter}.webp`;
+      link.href = canvas.toDataURL('image/webp', 0.5);
+      link.click();
+      imageCounter++;
+    };
+
+    const downloadNews = () => {
+      const link = document.createElement('a');
+      link.download = `news_card_${imageCounter}.webp`;
+      link.href = newsCanvas.toDataURL('image/webp', 0.95);
+      link.click();
+      imageCounter++;
+    };
+
+    document.addEventListener('paste', handlePaste);
+    stretchButton.addEventListener('click', fitByStretch);
+    fitLongestSideButton.addEventListener('click', fitOnLongestSide);
+    centerButton.addEventListener('click', centerImage);
+    generateButton.addEventListener('click', generateNewsCanvas);
+    downloadCanvasButton.addEventListener('click', downloadCanvas);
+    downloadNewsButton.addEventListener('click', downloadNews);
+  </script>
+</body>
+</html>
