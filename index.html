@@ -221,7 +221,7 @@
         ctx.font = `bold 70px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
         const testLine = line + word + ' ';
         const width = ctx.measureText(testLine).width;
-        if (width > 900 && i > 0) {
+        if (width > 960 && i > 0) {
           ctx.fillText(line.trim(), x, yPos);
           line = word + ' ';
           yPos += lineHeight;
