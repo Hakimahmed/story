@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Elegant Story Generator</title>
+  <title>FB & Insta Story Generator</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Urdu+Najd+V3&display=swap');
@@ -46,14 +46,14 @@
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
       backdrop-filter: blur(6px);
       border: 1px solid #e0e0e0;
-      width: 360px;
+      width: 960px;
       height: auto;
       transition: all 0.3s ease;
     }
 
     canvas {
-      width: 966px;
-      height: 1202px;
+      width: 100%;
+      height: 100%;
       border-radius: 12px;
       display: block;
     }
@@ -117,15 +117,15 @@
   </style>
 </head>
 <body>
-  <h1>Elegant Story Generator</h1>
+  <h1>FB & Insta Story Generator</h1>
 
   <div class="main-container">
     <div class="canvas-box">
-      <canvas id="canvas" width="966" height="1202"></canvas>
+      <canvas id="canvas" width="1920" height="1080"></canvas>
     </div>
 
     <div class="canvas-box">
-      <canvas id="newsCanvas" width="966" height="1202"></canvas>
+      <canvas id="newsCanvas" width="1920" height="1080"></canvas>
     </div>
 
     <div class="bottom-controls">
@@ -179,8 +179,30 @@
 
     const loadImage = (src) => {
       image = new Image();
-      image.onload = () => fitByStretch();
+      image.onload = () => fitImageToCanvas();
       image.src = src;
+    };
+
+    const fitImageToCanvas = () => {
+      if (!image) return;
+      const targetWidth = 966;
+      const targetHeight = 1202;
+      const aspectRatio = image.width / image.height;
+      let width, height;
+
+      if (aspectRatio > 1) { // Landscape image
+        width = targetWidth;
+        height = targetWidth / aspectRatio;
+      } else { // Portrait or square image
+        height = targetHeight;
+        width = targetHeight * aspectRatio;
+      }
+
+      offsetX = (canvas.width - width) / 2;
+      offsetY = (canvas.height - height) / 2;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(image, offsetX, offsetY, width, height);
     };
 
     const drawImage = () => {
@@ -233,50 +255,12 @@
       canvasImage.src = canvas.toDataURL('image/png');
     };
 
-    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = newsCanvas.height - 250) => {
-      const words = text.split(' ');
-      const lineHeight = 70;
-      let line = '';
+    // Additional helper function to draw headline on the generated story
+    const drawHeadline = (ctx, headline) => {
+      ctx.font = 'bold 40px Poppins';
+      ctx.fillStyle = '#006163';
       ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-      ctx.shadowOffsetX = 3;
-      ctx.shadowOffsetY = 3;
-      ctx.shadowBlur = 0;
-      ctx.direction = 'rtl';
-
-      let yPos = y;
-      for (let i = 0; i < words.length; i++) {
-        let word = words[i];
-        const isNumber = /^\d+$/.test(word);
-        ctx.font = `bold 80px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
-        const testLine = line + word + ' ';
-        const width = ctx.measureText(testLine).width;
-        if (width > 900 && i > 0) {
-          ctx.fillText(line.trim(), x, yPos);
-          line = word + ' ';
-          yPos += lineHeight;
-        } else {
-          line = testLine;
-        }
-      }
-      ctx.fillText(line.trim(), x, yPos);
-    };
-
-    const downloadCanvas = () => {
-      const link = document.createElement('a');
-      link.download = `card_${imageCounter}.webp`;
-      link.href = canvas.toDataURL('image/webp', 0.5);
-      link.click();
-      imageCounter++;
-    };
-
-    const downloadNews = () => {
-      const link = document.createElement('a');
-      link.download = `news_card_${imageCounter}.webp`;
-      link.href = newsCanvas.toDataURL('image/webp', 0.95);
-      link.click();
-      imageCounter++;
+      ctx.fillText(headline, newsCanvas.width / 2, 100);
     };
 
     document.addEventListener('paste', handlePaste);
@@ -284,8 +268,21 @@
     fitLongestSideButton.addEventListener('click', fitOnLongestSide);
     centerButton.addEventListener('click', centerImage);
     generateButton.addEventListener('click', generateNewsCanvas);
-    downloadCanvasButton.addEventListener('click', downloadCanvas);
-    downloadNewsButton.addEventListener('click', downloadNews);
+
+    // Save canvas images
+    downloadCanvasButton.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'original_story.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+
+    downloadNewsButton.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'generated_story.png';
+      link.href = newsCanvas.toDataURL();
+      link.click();
+    });
   </script>
 </body>
 </html>
