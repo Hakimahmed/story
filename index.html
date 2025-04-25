@@ -99,8 +99,8 @@
       position: absolute;
       top: 140px;
       right: 20px;
-      width: 50px;
-      height: 50px;
+      width: 160px;
+      height: 160px;
     }
 
     /* Headline text color */
@@ -221,7 +221,7 @@
         drawHeadline(newsCtx, headline);
         
         // Draw logo with updated size and top margin
-        newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 50, 50); // Logo size and top margin
+        newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160); // Logo size and top margin
       };
       canvasImage.src = canvas.toDataURL('image/png');
     };
