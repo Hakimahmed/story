@@ -118,6 +118,25 @@
     let logoImage = new Image();
     logoImage.src = 'aaj-logo.png'; // Set your logo image path here
 
+    // Ensure the background image is loaded before using it
+    backgroundImage.onload = () => {
+      newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
+    };
+
+    // Function to load pasted image
+    const handlePaste = (e) => {
+      const items = e.clipboardData.items;
+      for (const item of items) {
+        if (item.kind === 'file' && item.type.includes('image')) {
+          const blob = item.getAsFile();
+          const reader = new FileReader();
+          reader.onload = (evt) => loadImage(evt.target.result);
+          reader.readAsDataURL(blob);
+        }
+      }
+    };
+
+    // Load the pasted image onto the canvas
     const loadImage = (src) => {
       image = new Image();
       image.onload = () => fitByStretch();
@@ -202,6 +221,8 @@
       newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
       headlineInput.value = '';
     };
+
+    document.addEventListener('paste', handlePaste);
 
     stretchButton.addEventListener('click', fitByStretch);
     fitLongestSideButton.addEventListener('click', fitOnLongestSide);
