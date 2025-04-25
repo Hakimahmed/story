@@ -29,7 +29,7 @@
 
     .main-container {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: flex-start;
       gap: 20px;
     }
@@ -99,14 +99,17 @@
   <h1>Story Image Generator</h1>
 
   <div class="main-container">
+    <!-- Canvas Area -->
     <div class="canvas-box">
       <canvas id="canvas" width="1080" height="1920"></canvas>
     </div>
 
+    <!-- News Canvas Area -->
     <div class="canvas-box">
       <canvas id="newsCanvas" width="1080" height="1920"></canvas>
     </div>
 
+    <!-- Controls Area -->
     <div class="bottom-controls">
       <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
       <button id="stretchButton">Fit by Stretch</button>
@@ -119,6 +122,7 @@
   </div>
 
   <script>
+    // Canvas Initialization
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const newsCanvas = document.getElementById('newsCanvas');
@@ -143,7 +147,7 @@
     let scale = 1;
     let imageCounter = 1;
 
-    // Handle paste event to load image
+    // Handle image pasting
     const handlePaste = (e) => {
       const items = e.clipboardData.items;
       for (const item of items) {
@@ -156,7 +160,7 @@
       }
     };
 
-    // Load image to canvas
+    // Load image on canvas
     const loadImage = (src) => {
       image = new Image();
       image.onload = () => fitByStretch();
@@ -170,7 +174,7 @@
       ctx.drawImage(image, offsetX, offsetY, image.width * scale, image.height * scale);
     };
 
-    // Fit image to canvas by stretch
+    // Fit image by stretch to fill canvas
     const fitByStretch = () => {
       if (!image) return;
       offsetX = offsetY = 0;
@@ -186,7 +190,7 @@
       drawImage();
     };
 
-    // Fit image on longest side
+    // Fit image by longest side
     const fitOnLongestSide = () => {
       if (!image) return;
       offsetX = offsetY = 0;
@@ -202,7 +206,7 @@
       drawImage();
     };
 
-    // Generate the final story image with headline and logo
+    // Generate the story image with headline and logo
     const generateNewsCanvas = () => {
       const headline = headlineInput.value.trim();
       if (!headline) return;
@@ -218,7 +222,7 @@
       canvasImage.src = canvas.toDataURL('image/png');
     };
 
-    // Draw headline on news canvas
+    // Draw the headline on the news canvas
     const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = newsCanvas.height - 250) => {
       const words = text.split(' ');
       const lineHeight = 70;
@@ -249,7 +253,7 @@
       ctx.fillText(line.trim(), x, yPos);
     };
 
-    // Download original canvas image
+    // Download the original canvas image
     const downloadCanvas = () => {
       const link = document.createElement('a');
       link.download = `card_${imageCounter}.webp`;
@@ -258,7 +262,7 @@
       imageCounter++;
     };
 
-    // Download news canvas image
+    // Download the generated story canvas image
     const downloadNews = () => {
       const link = document.createElement('a');
       link.download = `news_card_${imageCounter}.webp`;
@@ -267,9 +271,8 @@
       imageCounter++;
     };
 
+    // Event Listeners
     document.addEventListener('paste', handlePaste);
-
-    // Event listeners for buttons
     stretchButton.addEventListener('click', fitByStretch);
     fitLongestSideButton.addEventListener('click', fitOnLongestSide);
     centerButton.addEventListener('click', centerImage);
