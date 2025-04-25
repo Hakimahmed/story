@@ -4,10 +4,17 @@
   <meta charset="UTF-8">
   <title>Story Creator</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Urdu+Najd+V3&display=swap');
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Roboto', sans-serif;
       padding: 20px;
       text-align: center;
+      background-color: #f0f2f5;
+    }
+    h2 {
+      color: #006163;
     }
     .story-previews {
       display: flex;
@@ -16,10 +23,13 @@
       margin-bottom: 20px;
     }
     .story-box {
-      width: 180px;
-      height: 320px;
+      width: 360px;
+      height: 640px;
       border: 2px dashed #ccc;
       background: #f9f9f9;
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
     }
     .headline-input {
       margin-bottom: 20px;
@@ -38,6 +48,25 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    .button-group button:hover {
+      background: #0056b3;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      display: block;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 300px;
+      border-radius: 5px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
   </style>
 </head>
 <body>
@@ -45,22 +74,142 @@
   <h2>Create Your Insta & FB Story</h2>
 
   <div class="story-previews">
-    <div class="story-box">Preview 1</div>
-    <div class="story-box">Preview 2</div>
+    <div class="story-box">
+      <canvas id="canvas" width="360" height="640"></canvas>
+    </div>
+    <div class="story-box">
+      <canvas id="newsCanvas" width="360" height="640"></canvas>
+    </div>
   </div>
 
   <div class="headline-input">
-    <input type="text" placeholder="Enter Headline" style="width: 300px; padding: 10px;">
+    <input type="text" id="headlineInput" placeholder="ہیڈ لائن یہاں لکھیں..." dir="rtl">
   </div>
 
   <div class="button-group">
-    <button>Upload Image</button>
-    <button>Change BG</button>
-    <button>Add Text</button>
-    <button>Apply Filter</button>
-    <button>Download</button>
-    <button>Reset</button>
+    <button id="stretchButton">Fit by Stretch</button>
+    <button id="fitLongestSideButton">Fit on Longest Side</button>
+    <button id="centerButton">Center Image</button>
+    <button id="generateButton">Generate Story</button>
+    <button id="downloadCanvasButton">Download Original</button>
+    <button id="downloadNewsButton">Download Story</button>
   </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const newsCanvas = document.getElementById('newsCanvas');
+    const newsCtx = newsCanvas.getContext('2d');
+    const headlineInput = document.getElementById('headlineInput');
+    
+    const stretchButton = document.getElementById('stretchButton');
+    const fitLongestSideButton = document.getElementById('fitLongestSideButton');
+    const centerButton = document.getElementById('centerButton');
+    const generateButton = document.getElementById('generateButton');
+    const downloadCanvasButton = document.getElementById('downloadCanvasButton');
+    const downloadNewsButton = document.getElementById('downloadNewsButton');
+
+    let image = null;
+    let offsetX = 0;
+    let offsetY = 0;
+    let scale = 1;
+    let backgroundImage = new Image();
+    backgroundImage.src = 'storybg.jpg'; // Set your background image path here
+    let logoImage = new Image();
+    logoImage.src = 'aaj-logo.png'; // Set your logo image path here
+
+    const loadImage = (src) => {
+      image = new Image();
+      image.onload = () => fitByStretch();
+      image.src = src;
+    };
+
+    const drawImage = () => {
+      if (!image) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(image, offsetX, offsetY, image.width * scale, image.height * scale);
+    };
+
+    const fitByStretch = () => {
+      if (!image) return;
+      offsetX = offsetY = 0;
+      const canvasRatio = canvas.width / canvas.height;
+      const imageRatio = image.width / image.height;
+      if (imageRatio > canvasRatio) {
+        scale = canvas.height / image.height;
+        offsetX = (canvas.width - image.width * scale) / 2;
+      } else {
+        scale = canvas.width / image.width;
+        offsetY = (canvas.height - image.height * scale) / 2;
+      }
+      drawImage();
+    };
+
+    const generateNewsCanvas = () => {
+      const headline = headlineInput.value.trim();
+      if (!headline) return;
+      newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
+      newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
+
+      const canvasImage = new Image();
+      canvasImage.onload = function () {
+        newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
+        drawHeadline(newsCtx, headline);
+        newsCtx.drawImage(logoImage, newsCanvas.width - 130, 50, 160, 160); // Logo positioned top-right with size 160x160
+      };
+      canvasImage.src = canvas.toDataURL('image/png');
+    };
+
+    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = newsCanvas.height - 250) => {
+      const words = text.split(' ');
+      const lineHeight = 70;
+      let line = '';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
+      ctx.shadowBlur = 0;
+      ctx.direction = 'rtl';
+
+      let yPos = y;
+      for (let i = 0; i < words.length; i++) {
+        let word = words[i];
+        const isNumber = /^\d+$/.test(word);
+        ctx.font = `bold 60px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
+        const testLine = line + word + ' ';
+        const width = ctx.measureText(testLine).width;
+        if (width > 900 && i > 0) {
+          ctx.fillText(line.trim(), x, yPos);
+          line = word + ' ';
+          yPos += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line.trim(), x, yPos);
+    };
+
+    const downloadCanvas = () => {
+      const link = document.createElement('a');
+      link.download = `story_image.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    };
+
+    const resetCanvas = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
+      headlineInput.value = '';
+    };
+
+    stretchButton.addEventListener('click', fitByStretch);
+    fitLongestSideButton.addEventListener('click', fitOnLongestSide);
+    centerButton.addEventListener('click', centerImage);
+    generateButton.addEventListener('click', generateNewsCanvas);
+    downloadCanvasButton.addEventListener('click', downloadCanvas);
+    downloadNewsButton.addEventListener('click', downloadNews);
+  </script>
 
 </body>
 </html>
