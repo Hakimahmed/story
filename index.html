@@ -19,10 +19,6 @@
       background-color: #f0f2f5;
       padding: 20px;
       overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      height: 100vh;
     }
 
     h1 {
@@ -31,70 +27,67 @@
       color: #006163;
     }
 
-    .main-container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      max-width: 1100px;
-      margin-top: 20px;
-    }
-
     .canvas-container {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       gap: 20px;
+      flex-wrap: wrap;
       width: 100%;
-      max-width: 1100px;
+      max-width: 100vw;
+      margin-bottom: 20px;
     }
 
     .canvas-box {
+      flex: 1 1 45%;
+      aspect-ratio: 9 / 16;
+      max-height: 90vh;
       background: white;
       border-radius: 12px;
-      padding: 10px;
+      padding: 5px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       border: 1px solid #ccc;
-      width: 1080px;
-      height: 1920px;
-      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
     }
 
     canvas {
-      width: 100%;
-      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
       border-radius: 8px;
-      display: block;
     }
 
     .controls {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: stretch;
+      align-items: center;
       gap: 10px;
-      margin-top: 20px;
     }
 
     input[type="text"] {
       font-size: 18px;
       padding: 10px;
       width: 100%;
+      max-width: 600px;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-family: 'Urdu Najd V3', serif;
+      direction: rtl;
     }
 
-    .bottom-controls {
+    .button-row {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 10px;
-      width: 300px;
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     button {
-      padding: 10px;
+      padding: 10px 15px;
       font-size: 16px;
       background-color: #006163;
       color: white;
@@ -107,33 +100,23 @@
     button:hover {
       background-color: #004c4c;
     }
-
-    .headline-input-container {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
   </style>
 </head>
 <body>
-  <div class="main-container">
-    <h1>Story Image Generator</h1>
+  <h1>Story Image Generator</h1>
 
-    <div class="canvas-container">
-      <div class="canvas-box">
-        <canvas id="canvas" width="1080" height="1920"></canvas>
-      </div>
-      <div class="canvas-box">
-        <canvas id="newsCanvas" width="1080" height="1920"></canvas>
-      </div>
+  <div class="canvas-container">
+    <div class="canvas-box">
+      <canvas id="canvas" width="1080" height="1920"></canvas>
     </div>
-
-    <div class="headline-input-container">
-      <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
+    <div class="canvas-box">
+      <canvas id="newsCanvas" width="966" height="1202"></canvas>
     </div>
+  </div>
 
-    <div class="bottom-controls">
+  <div class="controls">
+    <input type="text" id="headlineInput" placeholder="ہیڈ لائن یہاں لکھیں..." />
+    <div class="button-row">
       <button id="stretchButton">Fit by Stretch</button>
       <button id="fitLongestSideButton">Fit on Longest Side</button>
       <button id="centerButton">Center Image</button>
@@ -229,18 +212,16 @@
 
       const canvasImage = new Image();
       canvasImage.onload = function () {
-        // Drawing the image at fixed size 966x1202
-        newsCtx.drawImage(canvasImage, 0, 0, 966, 1202);
+        newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
         drawHeadline(newsCtx, headline);
-        // Adjusted logo position and size
-        newsCtx.drawImage(logoImage, newsCanvas.width - 160 - 20, 130, 160, 160);
+        newsCtx.drawImage(logoImage, newsCanvas.width - 160, 130, 160, 160);
       };
       canvasImage.src = canvas.toDataURL('image/png');
     };
 
-    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = newsCanvas.height - 250) => {
+    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = newsCanvas.height - 200) => {
       const words = text.split(' ');
-      const lineHeight = 80; // Adjusted line height
+      const lineHeight = 60;
       let line = '';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
@@ -254,10 +235,10 @@
       for (let i = 0; i < words.length; i++) {
         let word = words[i];
         const isNumber = /^\d+$/.test(word);
-        ctx.font = `bold 55px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`; // Adjusted font size
+        ctx.font = `bold 50px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
         const testLine = line + word + ' ';
         const width = ctx.measureText(testLine).width;
-        if (width > 900 && i > 0) {
+        if (width > 860 && i > 0) {
           ctx.fillText(line.trim(), x, yPos);
           line = word + ' ';
           yPos += lineHeight;
@@ -278,8 +259,8 @@
 
     const downloadNews = () => {
       const link = document.createElement('a');
-      link.download = `news_card_${imageCounter}.webp`;
-      link.href = newsCanvas.toDataURL('image/webp', 0.95);
+      link.download = `story_${imageCounter}.webp`;
+      link.href = newsCanvas.toDataURL('image/webp', 0.9);
       link.click();
       imageCounter++;
     };
