@@ -1,9 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FB & Insta Story Generator</title>
+  
+  <!-- Import Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Urdu+Najd+V3&display=swap" rel="stylesheet">
+
   <style>
     /* General Reset and Body */
     * {
@@ -13,7 +16,7 @@
     }
 
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Poppins', sans-serif; /* Default font */
       background: linear-gradient(145deg, #f4f6f8, #ffffff);
       color: #333;
       padding: 40px;
@@ -29,17 +32,16 @@
 
     /* Main Container */
     .container {
-      max-width: 1280px;
+      max-width: 1920px;
       margin: 0 auto;
     }
 
     /* Section Layout */
     .story-section {
       display: flex;
-      flex-direction: row;
       justify-content: space-between;
-      margin-bottom: 40px;
       gap: 40px;
+      margin-bottom: 40px;
     }
 
     .story-box {
@@ -52,7 +54,7 @@
 
     .story-box img {
       width: 100%;
-      height: auto;
+      height: 100%;
       border-radius: 8px;
     }
 
@@ -90,7 +92,7 @@
       margin-left: auto;
       margin-right: auto;
       background-color: #fafafa;
-      font-family: 'Arial', sans-serif;
+      font-family: 'Poppins', sans-serif; /* Poppins for English Text */
     }
 
     #headlineInput::placeholder {
@@ -98,7 +100,7 @@
     }
 
     /* Canvas Styling */
-    #canvasContainer, #newsCanvasContainer {
+    #canvasContainer {
       width: 100%;
       background-color: #ffffff;
       border-radius: 12px;
@@ -128,101 +130,13 @@
       background-color: #004d4d;
     }
 
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>FB & Insta Story Generator</h1>
-
-    <!-- Story Section: Left box for image and Right box for output -->
-    <div class="story-section">
-      <div class="story-box">
-        <h2 style="color: #006163;">Upload Image</h2>
-        <input type="file" id="imageInput" accept="image/*" style="width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px;">
-        <p style="color: #333;">Upload an image (size: 1920x1080) for your story</p>
-      </div>
-
-      <div class="story-box">
-        <h2 style="color: #006163;">Story Preview</h2>
-        <canvas id="canvas" width="1920" height="1080" style="width: 100%; height: auto; border-radius: 8px; background-color: #f1f1f1;"></canvas>
-      </div>
-    </div>
-
-    <!-- Controls -->
-    <div class="controls">
-      <input type="text" id="headlineInput" placeholder="Enter your headline here...">
-      <div>
-        <button onclick="generateStory()">Generate Story</button>
-      </div>
-    </div>
-
-    <!-- Download Buttons -->
-    <div class="download-buttons">
-      <button id="downloadButton">Download Story</button>
-    </div>
-  </div>
-
-  <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const imageInput = document.getElementById('imageInput');
-    const headlineInput = document.getElementById('headlineInput');
-    const downloadButton = document.getElementById('downloadButton');
-
-    let uploadedImage = new Image();
-
-    // Handle image upload
-    imageInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        uploadedImage.src = event.target.result;
-        uploadedImage.onload = () => {
-          generateStory();
-        };
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // Generate story with image and headline
-    function generateStory() {
-      if (!uploadedImage.src || !headlineInput.value) return;
-
-      // Clear canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw image on canvas
-      const imgRatio = uploadedImage.width / uploadedImage.height;
-      const canvasRatio = canvas.width / canvas.height;
-      let drawWidth = canvas.width;
-      let drawHeight = canvas.height;
-
-      if (imgRatio > canvasRatio) {
-        drawHeight = canvas.width / imgRatio;
-      } else {
-        drawWidth = canvas.height * imgRatio;
-      }
-
-      const x = (canvas.width - drawWidth) / 2;
-      const y = (canvas.height - drawHeight) / 2;
-
-      ctx.drawImage(uploadedImage, x, y, drawWidth, drawHeight);
-
-      // Draw headline text
-      const headline = headlineInput.value;
-      ctx.font = 'bold 48px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#006163';
-      ctx.fillText(headline, canvas.width / 2, canvas.height - 200);
+    /* Urdu Text Styling */
+    .urdu-text {
+      font-family: 'Urdu Najd V3', serif; /* Urdu font */
+      font-size: 30px;
+      color: #006163;
+      text-align: center;
     }
 
-    // Download generated story
-    downloadButton.addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = 'generated_story.png';
-      link.click();
-    });
-  </script>
-</body>
-</html>
+  </style>
+</head>
