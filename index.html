@@ -29,7 +29,7 @@
 
     .main-container {
       display: flex;
-      justify-content: flex-start;
+      justify-content: space-between;
       align-items: flex-start;
       gap: 20px;
     }
@@ -93,23 +93,29 @@
       top: 50%;
       transform: translateY(-50%);
     }
+
+    /* Adjustments for logo */
+    .logo {
+      position: absolute;
+      top: 140px;
+      right: 20px;
+      width: 160px;
+      height: 160px;
+    }
   </style>
 </head>
 <body>
   <h1>Story Image Generator</h1>
 
   <div class="main-container">
-    <!-- Canvas Area -->
     <div class="canvas-box">
       <canvas id="canvas" width="1080" height="1920"></canvas>
     </div>
 
-    <!-- News Canvas Area -->
     <div class="canvas-box">
       <canvas id="newsCanvas" width="1080" height="1920"></canvas>
     </div>
 
-    <!-- Controls Area -->
     <div class="bottom-controls">
       <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
       <button id="stretchButton">Fit by Stretch</button>
@@ -121,8 +127,9 @@
     </div>
   </div>
 
+  <img src="aaj-logo.png" alt="Logo" class="logo" id="logoImage"/>
+
   <script>
-    // Canvas Initialization
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const newsCanvas = document.getElementById('newsCanvas');
@@ -138,8 +145,7 @@
     const backgroundImage = new Image();
     backgroundImage.src = 'storybg.jpg';
 
-    const logoImage = new Image();
-    logoImage.src = 'aaj-logo.png';
+    const logoImage = document.getElementById('logoImage');
 
     let image = null;
     let offsetX = 0;
@@ -147,7 +153,6 @@
     let scale = 1;
     let imageCounter = 1;
 
-    // Handle image pasting
     const handlePaste = (e) => {
       const items = e.clipboardData.items;
       for (const item of items) {
@@ -160,21 +165,18 @@
       }
     };
 
-    // Load image on canvas
     const loadImage = (src) => {
       image = new Image();
       image.onload = () => fitByStretch();
       image.src = src;
     };
 
-    // Draw image on canvas
     const drawImage = () => {
       if (!image) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(image, offsetX, offsetY, image.width * scale, image.height * scale);
     };
 
-    // Fit image by stretch to fill canvas
     const fitByStretch = () => {
       if (!image) return;
       offsetX = offsetY = 0;
@@ -190,7 +192,6 @@
       drawImage();
     };
 
-    // Fit image by longest side
     const fitOnLongestSide = () => {
       if (!image) return;
       offsetX = offsetY = 0;
@@ -198,7 +199,6 @@
       drawImage();
     };
 
-    // Center image on canvas
     const centerImage = () => {
       if (!image) return;
       offsetX = (canvas.width - image.width * scale) / 2;
@@ -206,7 +206,6 @@
       drawImage();
     };
 
-    // Generate the story image with headline and logo
     const generateNewsCanvas = () => {
       const headline = headlineInput.value.trim();
       if (!headline) return;
@@ -217,15 +216,16 @@
       canvasImage.onload = function () {
         newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
         drawHeadline(newsCtx, headline);
-        newsCtx.drawImage(logoImage, newsCanvas.width - 130, 50, 110, 110);
+        
+        // Draw logo with updated size and top margin
+        newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160); // Logo size and top margin
       };
       canvasImage.src = canvas.toDataURL('image/png');
     };
 
-    // Draw the headline on the news canvas
-    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = newsCanvas.height - 250) => {
+    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 200) => { // Reduced top margin
       const words = text.split(' ');
-      const lineHeight = 70;
+      const lineHeight = 70;  // Set line height to match font size
       let line = '';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
@@ -233,13 +233,13 @@
       ctx.shadowOffsetX = 3;
       ctx.shadowOffsetY = 3;
       ctx.shadowBlur = 0;
-      ctx.direction = 'rtl';
+      ctx.direction = 'rtl'; // Right-to-left text direction
 
       let yPos = y;
       for (let i = 0; i < words.length; i++) {
         let word = words[i];
         const isNumber = /^\d+$/.test(word);
-        ctx.font = `bold 60px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
+        ctx.font = `bold 70px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`; // Set font size to 70px
         const testLine = line + word + ' ';
         const width = ctx.measureText(testLine).width;
         if (width > 900 && i > 0) {
@@ -253,7 +253,6 @@
       ctx.fillText(line.trim(), x, yPos);
     };
 
-    // Download the original canvas image
     const downloadCanvas = () => {
       const link = document.createElement('a');
       link.download = `card_${imageCounter}.webp`;
@@ -262,7 +261,6 @@
       imageCounter++;
     };
 
-    // Download the generated story canvas image
     const downloadNews = () => {
       const link = document.createElement('a');
       link.download = `news_card_${imageCounter}.webp`;
@@ -271,7 +269,6 @@
       imageCounter++;
     };
 
-    // Event Listeners
     document.addEventListener('paste', handlePaste);
     stretchButton.addEventListener('click', fitByStretch);
     fitLongestSideButton.addEventListener('click', fitOnLongestSide);
