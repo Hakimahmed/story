@@ -3,135 +3,139 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Story Image Generator</title>
+  <title>Elegant Story Generator</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Urdu+Najd+V3&display=swap');
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Roboto', sans-serif;
     }
 
     body {
-      background: #f4f6f8;
-      padding: 30px;
+      font-family: 'Poppins', sans-serif;
+      background-color: #fdfaf6;
+      padding: 20px;
+      overflow: hidden;
       color: #333;
     }
 
     h1 {
       text-align: center;
       margin-bottom: 30px;
-      color: #006163;
+      font-weight: 600;
+      color: #1d7874;
+      letter-spacing: 1px;
     }
 
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
+    .main-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 30px;
     }
 
-    #canvasContainer {
-      width: 1200px;
-      height: 720px;
-      margin-bottom: 30px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border: 1px solid #ccc;
-    }
-
-    #newsCanvasContainer {
-      width: 1080px;
-      height: 1920px;
-      position: relative;
-      margin: auto;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border: 1px solid #ccc;
+    .canvas-box {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(6px);
+      border: 1px solid #e0e0e0;
+      width: 360px;
+      transition: all 0.3s ease;
     }
 
     canvas {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
       display: block;
-      margin: auto;
     }
 
     .controls {
-      text-align: center;
-      margin-bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: stretch;
+      margin-top: 20px;
+      gap: 12px;
+    }
+
+    input[type="text"] {
+      font-size: 18px;
+      padding: 12px;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-family: 'Urdu Najd V3', serif;
+      background-color: #fff;
     }
 
     button {
-      padding: 12px 24px;
-      margin: 5px;
-      border: none;
-      border-radius: 6px;
-      background-color: #006163;
-      color: white;
+      padding: 12px;
       font-size: 16px;
+      background-color: #1d7874;
+      color: white;
+      border: none;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      font-weight: 500;
+      transition: background 0.3s ease;
     }
 
     button:hover {
-      background-color: #004d4d;
+      background-color: #155e5b;
     }
 
-    #headlineInput {
-      width: 80%;
-      padding: 12px;
-      font-size: 30px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin: 20px auto;
-      display: block;
-      font-family: 'Urdu Najd V3', serif;
-    }
-
-    .download-buttons {
-      margin-top: 20px;
-      text-align: center;
+    .bottom-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 300px;
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Story Image Generator</h1>
-    <div id="canvasContainer">
-      <canvas id="canvas" width="1200" height="720"></canvas>
+  <h1>Elegant Story Generator</h1>
+
+  <div class="main-container">
+    <div class="canvas-box">
+      <canvas id="canvas" width="1080" height="1920"></canvas>
     </div>
 
-    <div class="controls">
-      <button id="stretchButton">Fit by Stretch</button>
-      <button id="fitLongestSideButton">Fit on Longest Side</button>
-      <button id="centerButton">Center Image</button>
-    </div>
-
-    <input type="text" dir="rtl" id="headlineInput" placeholder="Enter headline" />
-
-    <div class="controls">
-      <button id="generateButton">Generate Story</button>
-    </div>
-
-    <div id="newsCanvasContainer">
+    <div class="canvas-box">
       <canvas id="newsCanvas" width="1080" height="1920"></canvas>
     </div>
 
-    <div class="download-buttons">
+    <div class="bottom-controls">
+      <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
+      <button id="stretchButton">Fit by Stretch</button>
+      <button id="fitLongestSideButton">Fit on Longest Side</button>
+      <button id="centerButton">Center Image</button>
+      <button id="generateButton">Generate Story</button>
       <button id="downloadCanvasButton">Download Original</button>
       <button id="downloadNewsButton">Download Story</button>
     </div>
   </div>
 
+  <!-- JS Script Below -->
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const newsCanvas = document.getElementById('newsCanvas');
     const newsCtx = newsCanvas.getContext('2d');
     const headlineInput = document.getElementById('headlineInput');
-
     const stretchButton = document.getElementById('stretchButton');
     const fitLongestSideButton = document.getElementById('fitLongestSideButton');
     const centerButton = document.getElementById('centerButton');
@@ -140,11 +144,9 @@
     const downloadNewsButton = document.getElementById('downloadNewsButton');
 
     const backgroundImage = new Image();
-    backgroundImage.crossOrigin = 'anonymous';
     backgroundImage.src = 'storybg.jpg';
 
     const logoImage = new Image();
-    logoImage.crossOrigin = 'anonymous';
     logoImage.src = 'aaj-logo.png';
 
     let image = null;
@@ -153,165 +155,121 @@
     let scale = 1;
     let imageCounter = 1;
 
-    document.addEventListener('paste', (event) => {
-      const items = event.clipboardData.items;
-      for (let item of items) {
+    const handlePaste = (e) => {
+      const items = e.clipboardData.items;
+      for (const item of items) {
         if (item.kind === 'file' && item.type.includes('image')) {
           const blob = item.getAsFile();
           const reader = new FileReader();
-          reader.onload = function (e) {
-            loadImage(e.target.result);
-          };
+          reader.onload = (evt) => loadImage(evt.target.result);
           reader.readAsDataURL(blob);
-          break;
         }
       }
-    });
+    };
 
-    function loadImage(src) {
+    const loadImage = (src) => {
       image = new Image();
-      image.crossOrigin = 'anonymous';
-      image.onload = () => {
-        fitByStretch();
-      };
+      image.onload = () => fitByStretch();
       image.src = src;
-    }
+    };
 
-    function drawImage() {
+    const drawImage = () => {
+      if (!image) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (image) {
-        ctx.drawImage(image, offsetX, offsetY, image.width * scale, image.height * scale);
-      }
-    }
+      ctx.drawImage(image, offsetX, offsetY, image.width * scale, image.height * scale);
+    };
 
-    function fitByStretch() {
+    const fitByStretch = () => {
       if (!image) return;
-      offsetX = 0;
-      offsetY = 0;
-      const canvasAspect = 1200 / 720;
-      const imageAspect = image.width / image.height;
-      if (imageAspect > canvasAspect) {
-        scale = 720 / image.height;
-        offsetX = (1200 - image.width * scale) / 2;
-      } else {
-        scale = 1200 / image.width;
-        offsetY = (720 - image.height * scale) / 2;
-      }
-      drawImage();
-    }
-
-    function fitOnLongestSide() {
-      if (!image) return;
-      if (image.width > image.height) {
-        scale = canvas.width / image.width;
-      } else {
+      offsetX = offsetY = 0;
+      const canvasRatio = canvas.width / canvas.height;
+      const imageRatio = image.width / image.height;
+      if (imageRatio > canvasRatio) {
         scale = canvas.height / image.height;
+        offsetX = (canvas.width - image.width * scale) / 2;
+      } else {
+        scale = canvas.width / image.width;
+        offsetY = (canvas.height - image.height * scale) / 2;
       }
-      offsetX = 0;
-      offsetY = 0;
       drawImage();
-    }
+    };
 
-    function centerImage() {
+    const fitOnLongestSide = () => {
+      if (!image) return;
+      offsetX = offsetY = 0;
+      scale = image.width > image.height ? canvas.width / image.width : canvas.height / image.height;
+      drawImage();
+    };
+
+    const centerImage = () => {
       if (!image) return;
       offsetX = (canvas.width - image.width * scale) / 2;
       offsetY = (canvas.height - image.height * scale) / 2;
       drawImage();
-    }
+    };
 
-    function generateNewsCanvas() {
-      const headline = headlineInput.value;
+    const generateNewsCanvas = () => {
+      const headline = headlineInput.value.trim();
       if (!headline) return;
-
       newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
       newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
 
       const canvasImage = new Image();
-      canvasImage.onload = () => {
-        newsCtx.fillStyle = 'white';
-        newsCtx.fillRect(25, 70, 1030, 611);
-        newsCtx.drawImage(canvasImage, 25, 70, 1030, 611);
-
-        drawWrappedMixedFontText(newsCtx, headline, newsCanvas.width / 2, 1300, 900, 72, '#006163', 3);
-
-        const logoX = newsCanvas.width - 115;
-        const logoY = 90;
-        newsCtx.drawImage(logoImage, logoX, logoY, 115, 115);
+      canvasImage.onload = function () {
+        newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
+        drawHeadline(newsCtx, headline);
+        newsCtx.drawImage(logoImage, newsCanvas.width - 130, 50, 110, 110);
       };
       canvasImage.src = canvas.toDataURL('image/png');
-    }
+    };
 
-    function drawWrappedMixedFontText(ctx, text, x, y, maxWidth, fontSize, color, shadowOffset) {
+    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = newsCanvas.height - 250) => {
+      const words = text.split(' ');
+      const lineHeight = 70;
+      let line = '';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
       ctx.shadowBlur = 0;
-      ctx.shadowOffsetX = shadowOffset;
-      ctx.shadowOffsetY = shadowOffset;
       ctx.direction = 'rtl';
 
-      const lineHeight = fontSize * 1.5;
-      const words = text.split(' ');
-      let line = '';
       let yPos = y;
-
       for (let i = 0; i < words.length; i++) {
-        const testLine = line + words[i] + ' ';
-        ctx.font = `${fontSize}px 'Urdu Najd V3'`;
+        let word = words[i];
+        const isNumber = /^\d+$/.test(word);
+        ctx.font = `bold 60px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
+        const testLine = line + word + ' ';
         const width = ctx.measureText(testLine).width;
-
-        if (width > maxWidth && i > 0) {
-          drawLineWithMixedFonts(ctx, line.trim(), x, yPos, fontSize, color);
-          line = words[i] + ' ';
+        if (width > 900 && i > 0) {
+          ctx.fillText(line.trim(), x, yPos);
+          line = word + ' ';
           yPos += lineHeight;
         } else {
           line = testLine;
         }
       }
+      ctx.fillText(line.trim(), x, yPos);
+    };
 
-      drawLineWithMixedFonts(ctx, line.trim(), x, yPos, fontSize, color);
-    }
-
-    function drawLineWithMixedFonts(ctx, line, x, y, fontSize, color) {
-      const chars = Array.from(line);
-      let totalWidth = 0;
-      const charWidths = [];
-
-      chars.forEach((char) => {
-        const isDigit = /\d/.test(char);
-        ctx.font = `${fontSize}px ${isDigit ? 'Arial' : "'Urdu Najd V3'"}`;
-        const w = ctx.measureText(char).width;
-        charWidths.push(w);
-        totalWidth += w;
-      });
-
-      let startX = x + totalWidth / 2;
-
-      chars.forEach((char, i) => {
-        const isDigit = /\d/.test(char);
-        ctx.font = `${fontSize}px ${isDigit ? 'Arial' : "'Urdu Najd V3'"}`;
-        ctx.fillStyle = color;
-        startX -= charWidths[i];
-        ctx.fillText(char, startX, y);
-      });
-    }
-
-    function downloadCanvas() {
+    const downloadCanvas = () => {
       const link = document.createElement('a');
       link.download = `card_${imageCounter}.webp`;
-      link.href = canvas.toDataURL('image/webp', 0.8);
+      link.href = canvas.toDataURL('image/webp', 0.5);
       link.click();
       imageCounter++;
-    }
+    };
 
-    function downloadNews() {
+    const downloadNews = () => {
       const link = document.createElement('a');
-      link.download = `story_${imageCounter}.webp`;
+      link.download = `news_card_${imageCounter}.webp`;
       link.href = newsCanvas.toDataURL('image/webp', 0.95);
       link.click();
       imageCounter++;
-    }
+    };
 
+    document.addEventListener('paste', handlePaste);
     stretchButton.addEventListener('click', fitByStretch);
     fitLongestSideButton.addEventListener('click', fitOnLongestSide);
     centerButton.addEventListener('click', centerImage);
