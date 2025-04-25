@@ -102,6 +102,11 @@
       width: 160px;
       height: 160px;
     }
+
+    /* Headline text color */
+    .headline-text {
+      color: #006163;
+    }
   </style>
 </head>
 <body>
@@ -234,6 +239,7 @@
       ctx.shadowOffsetY = 3;
       ctx.shadowBlur = 0;
       ctx.direction = 'rtl'; // Right-to-left text direction
+      ctx.fillStyle = '#006163'; // Set headline text color
 
       let yPos = y;
       for (let i = 0; i < words.length; i++) {
