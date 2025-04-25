@@ -18,20 +18,27 @@
       font-family: 'Roboto', sans-serif;
       background-color: #f0f2f5;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       overflow: hidden;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       color: #006163;
     }
 
     .main-container {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: flex-start;
       gap: 20px;
+      width: 100%;
+      max-width: 1400px; /* Limits the width of the main container */
     }
 
     .canvas-box {
@@ -41,6 +48,7 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       border: 1px solid #ccc;
       width: 360px;
+      height: 640px;
     }
 
     canvas {
@@ -60,12 +68,15 @@
     }
 
     input[type="text"] {
-      font-size: 18px;
+      font-size: 80px; /* Increased font size */
       padding: 10px;
       width: 100%;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-family: 'Urdu Najd V3', serif;
+      margin-top: 500px; /* Added top space for headline */
+      text-align: center;
+      color: #006163; /* Headline text color */
     }
 
     button {
@@ -88,24 +99,20 @@
       flex-direction: column;
       gap: 10px;
       width: 300px;
+      margin-top: 20px;
       position: absolute;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
-    /* Adjustments for logo */
-    .logo {
-      position: absolute;
-      top: 140px;
-      right: 20px;
+    /* Adjust logo size and margin */
+    #logoImage {
       width: 160px;
       height: 160px;
-    }
-
-    /* Headline text color */
-    .headline-text {
-      color: #006163;
+      position: absolute;
+      top: 140px;
+      left: 20px;
     }
   </style>
 </head>
@@ -120,16 +127,16 @@
     <div class="canvas-box">
       <canvas id="newsCanvas" width="1080" height="1920"></canvas>
     </div>
+  </div>
 
-    <div class="bottom-controls">
-      <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
-      <button id="stretchButton">Fit by Stretch</button>
-      <button id="fitLongestSideButton">Fit on Longest Side</button>
-      <button id="centerButton">Center Image</button>
-      <button id="generateButton">Generate Story</button>
-      <button id="downloadCanvasButton">Download Original</button>
-      <button id="downloadNewsButton">Download Story</button>
-    </div>
+  <div class="bottom-controls">
+    <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
+    <button id="stretchButton">Fit by Stretch</button>
+    <button id="fitLongestSideButton">Fit on Longest Side</button>
+    <button id="centerButton">Center Image</button>
+    <button id="generateButton">Generate Story</button>
+    <button id="downloadCanvasButton">Download Original</button>
+    <button id="downloadNewsButton">Download Story</button>
   </div>
 
   <script>
@@ -148,7 +155,8 @@
     const backgroundImage = new Image();
     backgroundImage.src = 'storybg.jpg';
 
-    const logoImage = document.getElementById('logoImage');
+    const logoImage = new Image();
+    logoImage.src = 'aaj-logo.png';
 
     let image = null;
     let offsetX = 0;
@@ -219,16 +227,14 @@
       canvasImage.onload = function () {
         newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
         drawHeadline(newsCtx, headline);
-        
-        // Draw logo with updated size and top margin
-        newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160); // Logo size and top margin
+        newsCtx.drawImage(logoImage, newsCanvas.width - 160 - 20, 140, 160, 160); // Fixed logo size and position
       };
       canvasImage.src = canvas.toDataURL('image/png');
     };
 
-    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 200) => { // Reduced top margin
+    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = newsCanvas.height - 250) => {
       const words = text.split(' ');
-      const lineHeight = 70;  // Set line height to match font size
+      const lineHeight = 70;
       let line = '';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
@@ -236,14 +242,13 @@
       ctx.shadowOffsetX = 3;
       ctx.shadowOffsetY = 3;
       ctx.shadowBlur = 0;
-      ctx.direction = 'rtl'; // Right-to-left text direction
-      ctx.fillStyle = '#006163'; // Set headline text color
+      ctx.direction = 'rtl';
 
       let yPos = y;
       for (let i = 0; i < words.length; i++) {
         let word = words[i];
         const isNumber = /^\d+$/.test(word);
-        ctx.font = `bold 70px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`; // Set font size to 70px
+        ctx.font = `bold 80px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`; // Increased font size
         const testLine = line + word + ' ';
         const width = ctx.measureText(testLine).width;
         if (width > 900 && i > 0) {
