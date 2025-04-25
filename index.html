@@ -1,276 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FB & Insta Story Generator</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Urdu+Najd+V3&display=swap');
-
+    /* General Reset and Body */
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom, #00a1b2, #006163);
-      color: #fff;
-      padding: 60px 30px;
-      overflow: hidden;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(145deg, #f4f6f8, #ffffff);
+      color: #333;
+      padding: 40px;
     }
 
     h1 {
       text-align: center;
-      color: #fff;
-      font-size: 48px;
-      font-weight: 600;
-      margin-bottom: 40px;
+      color: #004d4d;
+      font-size: 32px;
+      margin-bottom: 20px;
+      font-weight: bold;
     }
 
-    .main-container {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 40px;
-      max-width: 1920px;
+    /* Main Container */
+    .container {
+      max-width: 1280px;
       margin: 0 auto;
     }
 
-    .canvas-box {
-      position: relative;
-      width: 960px;
-      height: 540px;
-      background-color: rgba(255, 255, 255, 0.3);
-      border-radius: 20px;
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
-    }
-
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      border-radius: 20px;
-    }
-
-    .bottom-controls {
-      position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.8);
-      border-radius: 10px;
-      padding: 30px;
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-      width: 300px;
+    /* Section Layout */
+    .story-section {
       display: flex;
-      flex-direction: column;
-      gap: 15px;
+      flex-direction: row;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      gap: 40px;
     }
 
-    input[type="text"] {
-      padding: 15px;
-      font-size: 18px;
+    .story-box {
+      flex: 1;
+      background-color: #ffffff;
       border-radius: 12px;
-      border: 1px solid #ddd;
-      font-family: 'Urdu Najd V3', serif;
-      background-color: #fff;
-      color: #333;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      padding: 20px;
     }
 
-    button {
-      padding: 15px;
-      font-size: 18px;
-      background-color: #f06d63;
-      color: #fff;
+    .story-box img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    /* Controls & Buttons */
+    .controls {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .controls button {
+      padding: 12px 20px;
+      margin: 8px;
       border: none;
-      border-radius: 12px;
+      border-radius: 8px;
+      background-color: #006163;
+      color: #fff;
+      font-size: 16px;
       cursor: pointer;
-      font-weight: 600;
       transition: background-color 0.3s ease;
     }
 
-    button:hover {
-      background-color: #d05a50;
+    .controls button:hover {
+      background-color: #004d4d;
     }
 
-    .logo {
-      width: 180px;
-      height: auto;
-      margin: 10px auto;
+    /* Headline Input */
+    #headlineInput {
+      width: 80%;
+      padding: 12px;
+      font-size: 20px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #fafafa;
+      font-family: 'Arial', sans-serif;
+    }
+
+    #headlineInput::placeholder {
+      color: #888;
+    }
+
+    /* Canvas Styling */
+    #canvasContainer, #newsCanvasContainer {
+      width: 100%;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      position: relative;
+    }
+
+    /* Download Buttons */
+    .download-buttons {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .download-buttons button {
+      padding: 12px 24px;
+      background-color: #006163;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .download-buttons button:hover {
+      background-color: #004d4d;
     }
 
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>FB & Insta Story Generator</h1>
 
-  <h1>FB & Insta Story Generator</h1>
+    <!-- Story Section: Left box for image and Right box for output -->
+    <div class="story-section">
+      <div class="story-box">
+        <h2 style="color: #006163;">Upload Image</h2>
+        <input type="file" id="imageInput" accept="image/*" style="width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px;">
+        <p style="color: #333;">Upload an image (size: 1920x1080) for your story</p>
+      </div>
 
-  <div class="main-container">
-    <div class="canvas-box">
-      <canvas id="canvas" width="1920" height="1080"></canvas>
+      <div class="story-box">
+        <h2 style="color: #006163;">Story Preview</h2>
+        <canvas id="canvas" width="1920" height="1080" style="width: 100%; height: auto; border-radius: 8px; background-color: #f1f1f1;"></canvas>
+      </div>
     </div>
 
-    <div class="canvas-box">
-      <canvas id="newsCanvas" width="1920" height="1080"></canvas>
+    <!-- Controls -->
+    <div class="controls">
+      <input type="text" id="headlineInput" placeholder="Enter your headline here...">
+      <div>
+        <button onclick="generateStory()">Generate Story</button>
+      </div>
+    </div>
+
+    <!-- Download Buttons -->
+    <div class="download-buttons">
+      <button id="downloadButton">Download Story</button>
     </div>
   </div>
 
-  <div class="bottom-controls">
-    <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
-    <button id="stretchButton">Fit by Stretch</button>
-    <button id="fitLongestSideButton">Fit on Longest Side</button>
-    <button id="centerButton">Center Image</button>
-    <button id="generateButton">Generate Story</button>
-    <button id="downloadCanvasButton">Download Original</button>
-    <button id="downloadNewsButton">Download Story</button>
-  </div>
-
-  <!-- JS Script Below -->
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    const newsCanvas = document.getElementById('newsCanvas');
-    const newsCtx = newsCanvas.getContext('2d');
+    const imageInput = document.getElementById('imageInput');
     const headlineInput = document.getElementById('headlineInput');
-    const stretchButton = document.getElementById('stretchButton');
-    const fitLongestSideButton = document.getElementById('fitLongestSideButton');
-    const centerButton = document.getElementById('centerButton');
-    const generateButton = document.getElementById('generateButton');
-    const downloadCanvasButton = document.getElementById('downloadCanvasButton');
-    const downloadNewsButton = document.getElementById('downloadNewsButton');
+    const downloadButton = document.getElementById('downloadButton');
 
-    const backgroundImage = new Image();
-    backgroundImage.src = 'storybg.jpg';
+    let uploadedImage = new Image();
 
-    const logoImage = new Image();
-    logoImage.src = 'aaj-logo.png';
-
-    let image = null;
-    let offsetX = 0;
-    let offsetY = 0;
-    let scale = 1;
-    let imageCounter = 1;
-
-    const handlePaste = (e) => {
-      const items = e.clipboardData.items;
-      for (const item of items) {
-        if (item.kind === 'file' && item.type.includes('image')) {
-          const blob = item.getAsFile();
-          const reader = new FileReader();
-          reader.onload = (evt) => loadImage(evt.target.result);
-          reader.readAsDataURL(blob);
-        }
-      }
-    };
-
-    const loadImage = (src) => {
-      image = new Image();
-      image.onload = () => fitImageToCanvas();
-      image.src = src;
-    };
-
-    const fitImageToCanvas = () => {
-      if (!image) return;
-      const targetWidth = 966;
-      const targetHeight = 1202;
-      const aspectRatio = image.width / image.height;
-      let width, height;
-
-      if (aspectRatio > 1) { // Landscape image
-        width = targetWidth;
-        height = targetWidth / aspectRatio;
-      } else { // Portrait or square image
-        height = targetHeight;
-        width = targetHeight * aspectRatio;
-      }
-
-      offsetX = (canvas.width - width) / 2;
-      offsetY = (canvas.height - height) / 2;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, offsetX, offsetY, width, height);
-    };
-
-    const drawImage = () => {
-      if (!image) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, offsetX, offsetY, image.width * scale, image.height * scale);
-    };
-
-    const fitByStretch = () => {
-      if (!image) return;
-      offsetX = offsetY = 0;
-      const canvasRatio = canvas.width / canvas.height;
-      const imageRatio = image.width / image.height;
-      if (imageRatio > canvasRatio) {
-        scale = canvas.height / image.height;
-        offsetX = (canvas.width - image.width * scale) / 2;
-      } else {
-        scale = canvas.width / image.width;
-        offsetY = (canvas.height - image.height * scale) / 2;
-      }
-      drawImage();
-    };
-
-    const fitOnLongestSide = () => {
-      if (!image) return;
-      offsetX = offsetY = 0;
-      scale = image.width > image.height ? canvas.width / image.width : canvas.height / image.height;
-      drawImage();
-    };
-
-    const centerImage = () => {
-      if (!image) return;
-      offsetX = (canvas.width - image.width * scale) / 2;
-      offsetY = (canvas.height - image.height * scale) / 2;
-      drawImage();
-    };
-
-    const generateNewsCanvas = () => {
-      const headline = headlineInput.value.trim();
-      if (!headline) return;
-      newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
-      newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
-
-      const canvasImage = new Image();
-      canvasImage.onload = function () {
-        newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
-        drawHeadline(newsCtx, headline);
-        newsCtx.drawImage(logoImage, newsCanvas.width - 200, 60, 180, 180);
+    // Handle image upload
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        uploadedImage.src = event.target.result;
+        uploadedImage.onload = () => {
+          generateStory();
+        };
       };
-      canvasImage.src = canvas.toDataURL('image/png');
-    };
-
-    // Additional helper function to draw headline on the generated story
-    const drawHeadline = (ctx, headline) => {
-      ctx.font = 'bold 40px Poppins';
-      ctx.fillStyle = '#006163';
-      ctx.textAlign = 'center';
-      ctx.fillText(headline, newsCanvas.width / 2, 100);
-    };
-
-    document.addEventListener('paste', handlePaste);
-    stretchButton.addEventListener('click', fitByStretch);
-    fitLongestSideButton.addEventListener('click', fitOnLongestSide);
-    centerButton.addEventListener('click', centerImage);
-    generateButton.addEventListener('click', generateNewsCanvas);
-
-    // Save canvas images
-    downloadCanvasButton.addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.download = 'original_story.png';
-      link.href = canvas.toDataURL();
-      link.click();
+      reader.readAsDataURL(file);
     });
 
-    downloadNewsButton.addEventListener('click', () => {
+    // Generate story with image and headline
+    function generateStory() {
+      if (!uploadedImage.src || !headlineInput.value) return;
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw image on canvas
+      const imgRatio = uploadedImage.width / uploadedImage.height;
+      const canvasRatio = canvas.width / canvas.height;
+      let drawWidth = canvas.width;
+      let drawHeight = canvas.height;
+
+      if (imgRatio > canvasRatio) {
+        drawHeight = canvas.width / imgRatio;
+      } else {
+        drawWidth = canvas.height * imgRatio;
+      }
+
+      const x = (canvas.width - drawWidth) / 2;
+      const y = (canvas.height - drawHeight) / 2;
+
+      ctx.drawImage(uploadedImage, x, y, drawWidth, drawHeight);
+
+      // Draw headline text
+      const headline = headlineInput.value;
+      ctx.font = 'bold 48px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#006163';
+      ctx.fillText(headline, canvas.width / 2, canvas.height - 200);
+    }
+
+    // Download generated story
+    downloadButton.addEventListener('click', () => {
       const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
       link.download = 'generated_story.png';
-      link.href = newsCanvas.toDataURL();
       link.click();
     });
   </script>
