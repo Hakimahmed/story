@@ -168,8 +168,7 @@
     image.onload = () => {
       offsetX = 0;
       offsetY = 0;
-      scale = 1;
-      fitByStretch();
+      fitOnLongestSide();
     };
     image.src = src;
   };
@@ -180,7 +179,7 @@
     ctx.save();
     ctx.translate(offsetX, offsetY);
     ctx.scale(scale, scale);
-    ctx.drawImage(image, 0, 0, canvas.width / scale, canvas.height / scale);
+    ctx.drawImage(image, 0, 0);
     ctx.restore();
   };
 
@@ -188,7 +187,7 @@
     if (!image) return;
     offsetX = 0;
     offsetY = 0;
-    scale = 1;
+    scale = Math.max(canvas.width / image.width, canvas.height / image.height);
     drawImage();
   };
 
@@ -320,7 +319,6 @@
   downloadCanvasButton.addEventListener('click', downloadCanvas);
   downloadNewsButton.addEventListener('click', downloadNews);
 </script>
-
 
 
  </body>
