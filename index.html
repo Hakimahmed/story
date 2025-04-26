@@ -217,23 +217,8 @@
       const targetX = (newsCanvas.width - targetWidth) / 2;
       const targetY = (newsCanvas.height - targetHeight) / 2 - 288;
 
-      // "COVER" behavior — fill box fully, maybe crop a little
-      const sourceRatio = canvasImage.width / canvasImage.height;
-      const targetRatio = targetWidth / targetHeight;
-
-      let srcX = 0, srcY = 0, srcWidth = canvasImage.width, srcHeight = canvasImage.height;
-
-      if (sourceRatio > targetRatio) {
-        // Source is wider
-        srcWidth = canvasImage.height * targetRatio;
-        srcX = (canvasImage.width - srcWidth) / 2;
-      } else {
-        // Source is taller
-        srcHeight = canvasImage.width / targetRatio;
-        srcY = (canvasImage.height - srcHeight) / 2;
-      }
-
-      newsCtx.drawImage(canvasImage, srcX, srcY, srcWidth, srcHeight, targetX, targetY, targetWidth, targetHeight);
+      // STRETCH behavior — no crop, fill exact size
+      newsCtx.drawImage(canvasImage, 0, 0, canvasImage.width, canvasImage.height, targetX, targetY, targetWidth, targetHeight);
 
       drawHeadline(newsCtx, headline);
       newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160);
@@ -338,6 +323,7 @@
   downloadNewsButton.addEventListener('click', downloadNews);
 
 </script>
+
 
 
 
