@@ -123,7 +123,7 @@
     </div>
   </div>
   
-  <script>
+ <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const newsCanvas = document.getElementById('newsCanvas');
@@ -151,11 +151,13 @@ let isDragging = false;
 let startX, startY;
 let imageCounter = 1;
 
-// Make both canvas sizes same 966x1202
+// Only input canvas (small 966x1202), output big
 canvas.width = 966;
 canvas.height = 1202;
-newsCanvas.width = 966;
-newsCanvas.height = 1202;
+
+// Keep newsCanvas (second box) original background size (example 1080x1920)
+newsCanvas.width = 1080;
+newsCanvas.height = 1920;
 
 const handlePaste = (e) => {
   const items = e.clipboardData.items;
@@ -212,7 +214,12 @@ const generateNewsCanvas = () => {
 
   const canvasImage = new Image();
   canvasImage.onload = function () {
-    newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
+    // Draw input canvas into output newsCanvas
+    const newWidth = 966;
+    const newHeight = 1202;
+    const centerX = (newsCanvas.width - newWidth) / 2;
+    const centerY = (newsCanvas.height - newHeight) / 2 - 288;
+    newsCtx.drawImage(canvasImage, centerX, centerY, newWidth, newHeight);
     drawHeadline(newsCtx, headline);
     newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160);
   };
@@ -276,7 +283,7 @@ canvas.addEventListener('mousedown', (e) => {
 
 canvas.addEventListener('mousemove', (e) => {
   if (isDragging && image) {
-    const dx = (e.offsetX - startX) * 1.5; // Faster dragging
+    const dx = (e.offsetX - startX) * 1.5;
     const dy = (e.offsetY - startY) * 1.5;
     offsetX += dx;
     offsetY += dy;
