@@ -213,7 +213,7 @@
         const newWidth = 966;
         const newHeight = 1202;
         const centerX = (newsCanvas.width - newWidth) / 2;
-        const centerY = (newsCanvas.height - newHeight) / 2-290;
+        const centerY = (newsCanvas.height - newHeight) / 2-289;
         newsCtx.drawImage(canvasImage, centerX, centerY, newWidth, newHeight);
         drawHeadline(newsCtx, headline);
         newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160);
@@ -221,7 +221,7 @@
       canvasImage.src = canvas.toDataURL('image/png');
     };
 
-    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
+    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1450) => {
       const words = text.split(' ');
       const lineHeight = 110;
       let line = '';
