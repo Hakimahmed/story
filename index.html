@@ -122,7 +122,6 @@
       </div>
     </div>
   </div>
-
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -216,9 +215,8 @@ const generateNewsCanvas = () => {
     const targetWidth = 966;
     const targetHeight = 1202;
     const targetCenterX = (newsCanvas.width - targetWidth) / 2;
-    const targetCenterY = (newsCanvas.height - targetHeight) / 2 - 295;
+    const targetCenterY = (newsCanvas.height - targetHeight) / 2 - 288;
 
-    // Keep ratio perfect inside the box
     const imgRatio = canvasImage.width / canvasImage.height;
     const boxRatio = targetWidth / targetHeight;
 
@@ -290,7 +288,7 @@ const downloadNews = () => {
   imageCounter++;
 };
 
-// Mouse Drag to move the image
+// Mouse Drag
 canvas.addEventListener('mousedown', (e) => {
   isDragging = true;
   startX = e.offsetX;
@@ -299,7 +297,7 @@ canvas.addEventListener('mousedown', (e) => {
 
 canvas.addEventListener('mousemove', (e) => {
   if (isDragging && image) {
-    const dx = (e.offsetX - startX) / 1; // Faster drag speed
+    const dx = (e.offsetX - startX) / 1;
     const dy = (e.offsetY - startY) / 1;
     offsetX += dx;
     offsetY += dy;
@@ -317,6 +315,21 @@ canvas.addEventListener('mouseleave', () => {
   isDragging = false;
 });
 
+// Zoom with Mouse Wheel
+canvas.addEventListener('wheel', (e) => {
+  if (!image) return;
+  e.preventDefault();
+  const scaleAmount = 0.1;
+  if (e.deltaY < 0) {
+    scale *= (1 + scaleAmount);
+  } else {
+    scale *= (1 - scaleAmount);
+  }
+  // Optional: limit zoom level
+  scale = Math.max(0.1, Math.min(5, scale));
+  drawImage();
+});
+
 document.addEventListener('paste', handlePaste);
 stretchButton.addEventListener('click', fitByStretch);
 fitLongestSideButton.addEventListener('click', fitOnLongestSide);
@@ -324,8 +337,8 @@ centerButton.addEventListener('click', centerImage);
 generateButton.addEventListener('click', generateNewsCanvas);
 downloadCanvasButton.addEventListener('click', downloadCanvas);
 downloadNewsButton.addEventListener('click', downloadNews);
-
 </script>
+
 
 
 
