@@ -9,9 +9,9 @@
     @import url('https://fonts.googleapis.com/css2?family=Urdu+Najd+V3&display=swap');
 
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
     }
 
     body {
@@ -26,33 +26,33 @@
       color: #006163;
     }
 
-    .main-wrapper {
+    .main-container {
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 20px;
     }
 
     .canvas-container {
       display: flex;
       gap: 20px;
       justify-content: center;
-      margin-bottom: 20px;
     }
 
     .canvas-box {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      background: white;
+      border-radius: 12px;
       padding: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       border: 1px solid #ccc;
-      width: 300px;
+      width: 360px;
     }
 
     canvas {
       width: 100%;
       height: auto;
-      display: block;
       border-radius: 8px;
+      display: block;
     }
 
     .controls {
@@ -60,46 +60,47 @@
       flex-direction: column;
       align-items: center;
       gap: 15px;
-      width: 100%;
+      margin-top: 20px;
     }
 
-    #headlineInput {
-      width: 320px;
-      padding: 10px;
+    .controls input[type="text"] {
       font-size: 18px;
-      border-radius: 6px;
+      padding: 10px;
+      width: 300px;
       border: 1px solid #ccc;
+      border-radius: 6px;
       font-family: 'Urdu Najd V3', serif;
-      direction: rtl;
     }
 
     .button-group {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
       justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
       margin-top: 10px;
     }
 
     button {
-      padding: 10px 14px;
+      padding: 10px 15px;
+      font-size: 16px;
       background-color: #006163;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 14px;
+      transition: 0.3s;
     }
 
     button:hover {
-      background-color: #004d4d;
+      background-color: #004c4c;
     }
   </style>
 </head>
 <body>
+
   <h1>Story Image Generator</h1>
 
-  <div class="main-wrapper">
+  <div class="main-container">
     <div class="canvas-container">
       <div class="canvas-box">
         <canvas id="canvas" width="1080" height="1920"></canvas>
@@ -110,7 +111,7 @@
     </div>
 
     <div class="controls">
-      <input type="text" id="headlineInput" placeholder="ہیڈ لائن یہاں لکھیں..." />
+      <input type="text" id="headlineInput" dir="rtl" placeholder="ہیڈ لائن یہاں لکھیں..." />
       <div class="button-group">
         <button id="stretchButton">Fit by Stretch</button>
         <button id="fitLongestSideButton">Fit on Longest Side</button>
@@ -127,8 +128,8 @@
     const ctx = canvas.getContext('2d');
     const newsCanvas = document.getElementById('newsCanvas');
     const newsCtx = newsCanvas.getContext('2d');
-
     const headlineInput = document.getElementById('headlineInput');
+
     const stretchButton = document.getElementById('stretchButton');
     const fitLongestSideButton = document.getElementById('fitLongestSideButton');
     const centerButton = document.getElementById('centerButton');
@@ -145,7 +146,7 @@
     let image = null;
     let offsetX = 0;
     let offsetY = 0;
-    let scale = 0.7;
+    let scale = 1;
     let imageCounter = 1;
 
     const handlePaste = (e) => {
@@ -201,27 +202,47 @@
       drawImage();
     };
 
-    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
+    const generateNewsCanvas = () => {
+      const headline = headlineInput.value.trim();
+      if (!headline) return;
+      newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
+      newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
+
+      const canvasImage = new Image();
+      canvasImage.onload = function () {
+        const newWidth = 966;
+        const newHeight = 1202;
+        const centerX = (newsCanvas.width - newWidth) / 2;
+        const centerY = (newsCanvas.height - newHeight) / 2;
+        newsCtx.drawImage(canvasImage, centerX, centerY, newWidth, newHeight);
+        drawHeadline(newsCtx, headline);
+        newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160);
+      };
+      canvasImage.src = canvas.toDataURL('image/png');
+    };
+
+    const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 300) => {
       const words = text.split(' ');
-      const lineHeight = 110;
+      const lineHeight = 90;
       let line = '';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
       ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
       ctx.shadowBlur = 0;
-      ctx.fillStyle = '#006163';
       ctx.direction = 'rtl';
-//text size //
+      ctx.fillStyle = '#006163';
+      ctx.font = 'bold 70px "Urdu Najd V3", serif';
+
       let yPos = y;
       for (let i = 0; i < words.length; i++) {
         let word = words[i];
         const isNumber = /^\d+$/.test(word);
-        ctx.font = `bold 88px ${isNumber ? 'Arial' : 'Urdu Najd V3'}`;
+        ctx.font = `bold 70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
         const testLine = line + word + ' ';
         const width = ctx.measureText(testLine).width;
-        if (width > 960 && i > 0) {
+        if (width > newsCanvas.width - 120 && i > 0) { // margin 60px left and right
           ctx.fillText(line.trim(), x, yPos);
           line = word + ' ';
           yPos += lineHeight;
@@ -230,26 +251,6 @@
         }
       }
       ctx.fillText(line.trim(), x, yPos);
-    };
-
-    const generateNewsCanvas = () => {
-      const headline = headlineInput.value.trim();
-      if (!headline) return;
-const newWidth = 966;  // Set the width to 966px
-const newHeight = 1202;  // Set the height to 1202px
-
-newsCtx.drawImage(canvasImage, 0, 0, newWidth, newHeight);
-
-      newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
-      newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
-
-      const canvasImage = new Image();
-      canvasImage.onload = function () {
-        newsCtx.drawImage(canvasImage, 0, 0, newsCanvas.width, newsCanvas.height);
-        drawHeadline(newsCtx, headline);
-        newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160);
-      };
-      canvasImage.src = canvas.toDataURL('image/png');
     };
 
     const downloadCanvas = () => {
@@ -276,5 +277,6 @@ newsCtx.drawImage(canvasImage, 0, 0, newWidth, newHeight);
     downloadCanvasButton.addEventListener('click', downloadCanvas);
     downloadNewsButton.addEventListener('click', downloadNews);
   </script>
+
 </body>
 </html>
