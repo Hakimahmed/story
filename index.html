@@ -124,10 +124,6 @@
   </div>
 
   <script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-
-    
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const newsCanvas = document.getElementById('newsCanvas');
@@ -146,9 +142,6 @@ const ctx = canvas.getContext('2d');
 
     const logoImage = new Image();
     logoImage.src = 'aaj-logo.png';
-let isDragging = false;
-let dragStartX = 0;
-let dragStartY = 0;
 
     let image = null;
     let offsetX = 0;
@@ -283,39 +276,6 @@ let dragStartY = 0;
     generateButton.addEventListener('click', generateNewsCanvas);
     downloadCanvasButton.addEventListener('click', downloadCanvas);
     downloadNewsButton.addEventListener('click', downloadNews);
-
-
-
-
-
-
-
-    canvas.addEventListener('mousedown', (e) => {
-  if (!image) return;
-  isDragging = true;
-  dragStartX = e.offsetX;
-  dragStartY = e.offsetY;
-});
-
-canvas.addEventListener('mousemove', (e) => {
-  if (isDragging && image) {
-    const dx = e.offsetX - dragStartX;
-    const dy = e.offsetY - dragStartY;
-    offsetX += dx;
-    offsetY += dy;
-    dragStartX = e.offsetX;
-    dragStartY = e.offsetY;
-    drawImage();
-  }
-});
-
-canvas.addEventListener('mouseup', () => {
-  isDragging = false;
-});
-
-canvas.addEventListener('mouseleave', () => {
-  isDragging = false;
-});
 
   </script>
  </body>
