@@ -124,201 +124,190 @@
   </div>
   
 <script>
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  const newsCanvas = document.getElementById('newsCanvas');
-  const newsCtx = newsCanvas.getContext('2d');
-  const headlineInput = document.getElementById('headlineInput');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const newsCanvas = document.getElementById('newsCanvas');
+const newsCtx = newsCanvas.getContext('2d');
+const headlineInput = document.getElementById('headlineInput');
 
-  const stretchButton = document.getElementById('stretchButton');
-  const fitLongestSideButton = document.getElementById('fitLongestSideButton');
-  const centerButton = document.getElementById('centerButton');
-  const generateButton = document.getElementById('generateButton');
-  const downloadCanvasButton = document.getElementById('downloadCanvasButton');
-  const downloadNewsButton = document.getElementById('downloadNewsButton');
+const stretchButton = document.getElementById('stretchButton');
+const fitLongestSideButton = document.getElementById('fitLongestSideButton');
+const centerButton = document.getElementById('centerButton');
+const generateButton = document.getElementById('generateButton');
+const downloadCanvasButton = document.getElementById('downloadCanvasButton');
+const downloadNewsButton = document.getElementById('downloadNewsButton');
 
-  const backgroundImage = new Image();
-  backgroundImage.src = 'storybg.jpg';
+const backgroundImage = new Image();
+backgroundImage.src = 'storybg.jpg';
 
-  const logoImage = new Image();
-  logoImage.src = 'aaj-logo.png';
+const logoImage = new Image();
+logoImage.src = 'aaj-logo.png';
 
-  let image = null;
-  let offsetX = 0;
-  let offsetY = 0;
-  let scale = 1;
-  let dragging = false;
-  let dragStartX, dragStartY;
-  let imageCounter = 1;
+let image = null;
+let offsetX = 0;
+let offsetY = 0;
+let scale = 1;
+let imageCounter = 1;
+let isDragging = false;
+let lastX, lastY;
 
-  const handlePaste = (e) => {
-    const items = e.clipboardData.items;
-    for (const item of items) {
-      if (item.kind === 'file' && item.type.includes('image')) {
-        const blob = item.getAsFile();
-        const reader = new FileReader();
-        reader.onload = (evt) => loadImage(evt.target.result);
-        reader.readAsDataURL(blob);
-      }
+const handlePaste = (e) => {
+  const items = e.clipboardData.items;
+  for (const item of items) {
+    if (item.kind === 'file' && item.type.includes('image')) {
+      const blob = item.getAsFile();
+      const reader = new FileReader();
+      reader.onload = (evt) => loadImage(evt.target.result);
+      reader.readAsDataURL(blob);
     }
-  };
+  }
+};
 
-  const loadImage = (src) => {
-    image = new Image();
-    image.onload = () => {
-      offsetX = 0;
-      offsetY = 0;
-      fitOnLongestSide();
-    };
-    image.src = src;
+const loadImage = (src) => {
+  image = new Image();
+  image.onload = () => {
+    fitByStretch(); 
   };
+  image.src = src;
+};
 
-  const drawImage = () => {
-    if (!image) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(scale, scale);
-    ctx.drawImage(image, 0, 0);
-    ctx.restore();
+const drawImage = () => {
+  if (!image) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(image, offsetX, offsetY, image.width * scale, image.height * scale);
+};
+
+const fitByStretch = () => {
+  if (!image) return;
+  offsetX = offsetY = 0;
+  scale = Math.min(canvas.width / image.width, canvas.height / image.height);
+  centerImage();
+};
+
+const fitOnLongestSide = () => {
+  if (!image) return;
+  offsetX = offsetY = 0;
+  scale = image.width > image.height ? canvas.width / image.width : canvas.height / image.height;
+  centerImage();
+};
+
+const centerImage = () => {
+  if (!image) return;
+  offsetX = (canvas.width - image.width * scale) / 2;
+  offsetY = (canvas.height - image.height * scale) / 2;
+  drawImage();
+};
+
+const generateNewsCanvas = () => {
+  const headline = headlineInput.value.trim();
+  if (!headline) return;
+  newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
+  newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
+
+  const canvasImage = new Image();
+  canvasImage.onload = function () {
+    const newWidth = 966;
+    const newHeight = 1202;
+    const centerX = (newsCanvas.width - newWidth) / 2;
+    const centerY = (newsCanvas.height - newHeight) / 2 - 288;
+    newsCtx.drawImage(canvasImage, centerX, centerY, newWidth, newHeight);
+    drawHeadline(newsCtx, headline);
+    newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160);
   };
+  canvasImage.src = canvas.toDataURL('image/png');
+};
 
-  const fitByStretch = () => {
-    if (!image) return;
-    offsetX = 0;
-    offsetY = 0;
-    scale = Math.max(canvas.width / image.width, canvas.height / image.height);
-    drawImage();
-  };
+const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1450) => {
+  const words = text.split(' ');
+  const lineHeight = 110;
+  let line = '';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
+  ctx.shadowBlur = 0;
+  ctx.direction = 'rtl';
+  ctx.fillStyle = '#006163';
+  ctx.font = 'bold 88px "Urdu Najd V3", serif';
 
-  const fitOnLongestSide = () => {
-    if (!image) return;
-    const canvasRatio = canvas.width / canvas.height;
-    const imageRatio = image.width / image.height;
-    if (imageRatio > canvasRatio) {
-      scale = canvas.width / image.width;
+  let yPos = y;
+  for (let i = 0; i < words.length; i++) {
+    let word = words[i];
+    const isNumber = /^\d+$/.test(word);
+    ctx.font = `bold 70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
+    const testLine = line + word + ' ';
+    const width = ctx.measureText(testLine).width;
+    if (width > newsCanvas.width - 120 && i > 0) {
+      ctx.fillText(line.trim(), x, yPos);
+      line = word + ' ';
+      yPos += lineHeight;
     } else {
-      scale = canvas.height / image.height;
+      line = testLine;
     }
-    offsetX = (canvas.width - image.width * scale) / 2;
-    offsetY = (canvas.height - image.height * scale) / 2;
+  }
+  ctx.fillText(line.trim(), x, yPos);
+};
+
+const downloadCanvas = () => {
+  const link = document.createElement('a');
+  link.download = `card_${imageCounter}.jpeg`;
+  link.href = canvas.toDataURL('image/jpeg', 0.9);
+  link.click();
+  imageCounter++;
+};
+
+const downloadNews = () => {
+  const link = document.createElement('a');
+  link.download = `news_card_${imageCounter}.jpeg`;
+  link.href = newsCanvas.toDataURL('image/jpeg', 0.95);
+  link.click();
+  imageCounter++;
+};
+
+// Mouse drag move
+canvas.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  lastX = e.offsetX;
+  lastY = e.offsetY;
+});
+canvas.addEventListener('mousemove', (e) => {
+  if (isDragging && image) {
+    const dx = (e.offsetX - lastX);
+    const dy = (e.offsetY - lastY);
+    offsetX += dx;
+    offsetY += dy;
+    lastX = e.offsetX;
+    lastY = e.offsetY;
     drawImage();
-  };
+  }
+});
+canvas.addEventListener('mouseup', () => isDragging = false);
+canvas.addEventListener('mouseleave', () => isDragging = false);
 
-  const centerImage = () => {
-    if (!image) return;
-    offsetX = (canvas.width - image.width * scale) / 2;
-    offsetY = (canvas.height - image.height * scale) / 2;
-    drawImage();
-  };
+// Mouse Scroll zoom
+canvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const scaleAmount = 0.05;
+  if (e.deltaY < 0) {
+    scale += scaleAmount;
+  } else {
+    scale -= scaleAmount;
+  }
+  scale = Math.min(Math.max(0.2, scale), 5); // Zoom limits
+  drawImage();
+});
 
-  const generateNewsCanvas = () => {
-    const headline = headlineInput.value.trim();
-    if (!headline) return;
-    newsCtx.clearRect(0, 0, newsCanvas.width, newsCanvas.height);
-    newsCtx.drawImage(backgroundImage, 0, 0, newsCanvas.width, newsCanvas.height);
+document.addEventListener('paste', handlePaste);
+stretchButton.addEventListener('click', fitByStretch);
+fitLongestSideButton.addEventListener('click', fitOnLongestSide);
+centerButton.addEventListener('click', centerImage);
+generateButton.addEventListener('click', generateNewsCanvas);
+downloadCanvasButton.addEventListener('click', downloadCanvas);
+downloadNewsButton.addEventListener('click', downloadNews);
 
-    const canvasImage = new Image();
-    canvasImage.onload = function () {
-      const newWidth = 966;
-      const newHeight = 1202;
-      const centerX = (newsCanvas.width - newWidth) / 2;
-      const centerY = (newsCanvas.height - newHeight) / 2 - 288;
-      newsCtx.drawImage(canvasImage, centerX, centerY, newWidth, newHeight);
-      drawHeadline(newsCtx, headline);
-      newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160);
-    };
-    canvasImage.src = canvas.toDataURL('image/png');
-  };
-
-  const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1450) => {
-    const words = text.split(' ');
-    const lineHeight = 110;
-    let line = '';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
-    ctx.shadowBlur = 0;
-    ctx.direction = 'rtl';
-    ctx.fillStyle = '#006163';
-    ctx.font = 'bold 88px "Urdu Najd V3", serif';
-
-    let yPos = y;
-    for (let i = 0; i < words.length; i++) {
-      let word = words[i];
-      const isNumber = /^\d+$/.test(word);
-      ctx.font = `bold 70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
-      const testLine = line + word + ' ';
-      const width = ctx.measureText(testLine).width;
-      if (width > newsCanvas.width - 120 && i > 0) {
-        ctx.fillText(line.trim(), x, yPos);
-        line = word + ' ';
-        yPos += lineHeight;
-      } else {
-        line = testLine;
-      }
-    }
-    ctx.fillText(line.trim(), x, yPos);
-  };
-
-  const downloadCanvas = () => {
-    const link = document.createElement('a');
-    link.download = `card_${imageCounter}.jpeg`;
-    link.href = canvas.toDataURL('image/jpeg', 0.9);
-    link.click();
-    imageCounter++;
-  };
-
-  const downloadNews = () => {
-    const link = document.createElement('a');
-    link.download = `news_card_${imageCounter}.jpeg`;
-    link.href = newsCanvas.toDataURL('image/jpeg', 0.95);
-    link.click();
-    imageCounter++;
-  };
-
-  // Mouse Dragging
-  canvas.addEventListener('mousedown', (e) => {
-    dragging = true;
-    dragStartX = e.offsetX - offsetX;
-    dragStartY = e.offsetY - offsetY;
-  });
-
-  canvas.addEventListener('mouseup', () => {
-    dragging = false;
-  });
-
-  canvas.addEventListener('mouseout', () => {
-    dragging = false;
-  });
-
-  canvas.addEventListener('mousemove', (e) => {
-    if (dragging && image) {
-      offsetX = e.offsetX - dragStartX;
-      offsetY = e.offsetY - dragStartY;
-      drawImage();
-    }
-  });
-
-  // Mouse Scroll Zoom
-  canvas.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    if (!image) return;
-    const zoom = e.deltaY < 0 ? 1.05 : 0.95;
-    scale *= zoom;
-    drawImage();
-  });
-
-  document.addEventListener('paste', handlePaste);
-  stretchButton.addEventListener('click', fitByStretch);
-  fitLongestSideButton.addEventListener('click', fitOnLongestSide);
-  centerButton.addEventListener('click', centerImage);
-  generateButton.addEventListener('click', generateNewsCanvas);
-  downloadCanvasButton.addEventListener('click', downloadCanvas);
-  downloadNewsButton.addEventListener('click', downloadNews);
 </script>
+
 
 
  </body>
