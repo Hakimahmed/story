@@ -217,22 +217,23 @@
       const targetX = (newsCanvas.width - targetWidth) / 2;
       const targetY = (newsCanvas.height - targetHeight) / 2 - 288;
 
-      const imgRatio = canvasImage.width / canvasImage.height;
-      const boxRatio = targetWidth / targetHeight;
+      // "COVER" behavior — fill box fully, maybe crop a little
+      const sourceRatio = canvasImage.width / canvasImage.height;
+      const targetRatio = targetWidth / targetHeight;
 
-      let drawWidth, drawHeight;
-      if (imgRatio > boxRatio) {
-        drawHeight = targetHeight;
-        drawWidth = drawHeight * imgRatio;
+      let srcX = 0, srcY = 0, srcWidth = canvasImage.width, srcHeight = canvasImage.height;
+
+      if (sourceRatio > targetRatio) {
+        // Source is wider
+        srcWidth = canvasImage.height * targetRatio;
+        srcX = (canvasImage.width - srcWidth) / 2;
       } else {
-        drawWidth = targetWidth;
-        drawHeight = drawWidth / imgRatio;
+        // Source is taller
+        srcHeight = canvasImage.width / targetRatio;
+        srcY = (canvasImage.height - srcHeight) / 2;
       }
 
-      const drawX = targetX + (targetWidth - drawWidth) / 2;
-      const drawY = targetY + (targetHeight - drawHeight) / 2;
-
-      newsCtx.drawImage(canvasImage, drawX, drawY, drawWidth, drawHeight);
+      newsCtx.drawImage(canvasImage, srcX, srcY, srcWidth, srcHeight, targetX, targetY, targetWidth, targetHeight);
 
       drawHeadline(newsCtx, headline);
       newsCtx.drawImage(logoImage, newsCanvas.width - 160, 140, 160, 160);
@@ -288,7 +289,7 @@
     imageCounter++;
   };
 
-  // Fast Dragging Code
+  // Fast Dragging
   canvas.addEventListener('mousedown', (e) => {
     if (!image) return;
     isDragging = true;
@@ -310,17 +311,16 @@
   canvas.addEventListener('mouseup', () => isDragging = false);
   canvas.addEventListener('mouseleave', () => isDragging = false);
 
-  // Mouse Scroll Zoom In/Out
+  // Scroll Zoom
   canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
     if (!image) return;
-    const zoomAmount = e.deltaY * -0.0015; // Faster zooming
+    const zoomAmount = e.deltaY * -0.0015;
     const oldScale = scale;
     scale += zoomAmount;
     if (scale < 0.05) scale = 0.05;
     if (scale > 5) scale = 5;
 
-    // Zoom towards mouse position
     const mx = e.offsetX;
     const my = e.offsetY;
     offsetX = mx - ((mx - offsetX) * (scale / oldScale));
@@ -338,6 +338,7 @@
   downloadNewsButton.addEventListener('click', downloadNews);
 
 </script>
+
 
 
 
