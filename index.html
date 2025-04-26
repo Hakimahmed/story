@@ -124,6 +124,8 @@
   </div>
 
   <script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 
     
     const canvas = document.getElementById('canvas');
@@ -144,6 +146,9 @@
 
     const logoImage = new Image();
     logoImage.src = 'aaj-logo.png';
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
 
     let image = null;
     let offsetX = 0;
@@ -278,27 +283,29 @@
     generateButton.addEventListener('click', generateNewsCanvas);
     downloadCanvasButton.addEventListener('click', downloadCanvas);
     downloadNewsButton.addEventListener('click', downloadNews);
-  </script>
-  <script>
-let isDragging = false;
-let startX = 0;
-let startY = 0;
 
-canvas.addEventListener('mousedown', (e) => {
+
+
+
+
+
+
+    canvas.addEventListener('mousedown', (e) => {
+  if (!image) return;
   isDragging = true;
-  startX = e.offsetX;
-  startY = e.offsetY;
+  dragStartX = e.offsetX;
+  dragStartY = e.offsetY;
 });
 
 canvas.addEventListener('mousemove', (e) => {
   if (isDragging && image) {
-    const dx = e.offsetX - startX;
-    const dy = e.offsetY - startY;
+    const dx = e.offsetX - dragStartX;
+    const dy = e.offsetY - dragStartY;
     offsetX += dx;
     offsetY += dy;
-    startX = e.offsetX;
-    startY = e.offsetY;
-    drawImage(); // redraw image on new position
+    dragStartX = e.offsetX;
+    dragStartY = e.offsetY;
+    drawImage();
   }
 });
 
@@ -310,18 +317,6 @@ canvas.addEventListener('mouseleave', () => {
   isDragging = false;
 });
 
-    const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-
-    let isDragging = false;
-let startX = 0;
-let startY = 0;
-
-    canvas.addEventListener('mousedown', (e) => { ... });
-canvas.addEventListener('mousemove', (e) => { ... });
-canvas.addEventListener('mouseup', () => { ... });
-canvas.addEventListener('mouseleave', () => { ... });
-
-    </script>
-</body>
+  </script>
+ </body>
 </html>
