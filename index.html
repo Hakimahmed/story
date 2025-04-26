@@ -125,54 +125,6 @@
 
   <script>
 
-
-
-
-    
-let isDragging = false;
-let startX = 0;
-let startY = 0;
-canvas.addEventListener('mousedown', (e) => {
-  isDragging = true;
-  startX = e.offsetX;
-  startY = e.offsetY;
-});
-
-canvas.addEventListener('mousemove', (e) => {
-  if (isDragging && image) {
-    const dx = e.offsetX - startX;
-    const dy = e.offsetY - startY;
-    offsetX += dx;
-    offsetY += dy;
-    startX = e.offsetX;
-    startY = e.offsetY;
-    drawImage();
-  }
-});
-
-canvas.addEventListener('mouseup', () => {
-  isDragging = false;
-});
-
-canvas.addEventListener('mouseleave', () => {
-  isDragging = false;
-});
-canvas.addEventListener('mousedown', (e) => {
-  e.preventDefault();
-  isDragging = true;
-  startX = e.offsetX;
-  startY = e.offsetY;
-});
-
-
-
-
-
-
-
-
-
-    
     
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
