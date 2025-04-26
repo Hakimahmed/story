@@ -255,16 +255,16 @@
 
     const downloadCanvas = () => {
       const link = document.createElement('a');
-      link.download = `card_${imageCounter}.webp`;
-      link.href = canvas.toDataURL('image/webp', 0.5);
+      link.download = `card_${imageCounter}.jpeg`;
+      link.href = canvas.toDataURL('image/jpeg', 0.9);
       link.click();
       imageCounter++;
     };
 
     const downloadNews = () => {
       const link = document.createElement('a');
-      link.download = `news_card_${imageCounter}.webp`;
-      link.href = newsCanvas.toDataURL('image/webp', 0.95);
+      link.download = `news_card_${imageCounter}.jpeg`;
+      link.href = newsCanvas.toDataURL('image/jpeg', 0.95);
       link.click();
       imageCounter++;
     };
