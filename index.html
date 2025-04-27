@@ -147,9 +147,9 @@ let image = null;
 let offsetX = 0;
 let offsetY = 0;
 let scale = 1;
-let imageCounter = 1;
 let isDragging = false;
-let lastX, lastY;
+let startX, startY;
+let imageCounter = 1;
 
 const handlePaste = (e) => {
   const items = e.clipboardData.items;
@@ -166,7 +166,7 @@ const handlePaste = (e) => {
 const loadImage = (src) => {
   image = new Image();
   image.onload = () => {
-    fitByStretch(); 
+    fitOnLongestSide();
   };
   image.src = src;
 };
@@ -179,16 +179,24 @@ const drawImage = () => {
 
 const fitByStretch = () => {
   if (!image) return;
-  offsetX = offsetY = 0;
-  scale = Math.min(canvas.width / image.width, canvas.height / image.height);
-  centerImage();
+  offsetX = 0;
+  offsetY = 0;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height);
 };
 
 const fitOnLongestSide = () => {
   if (!image) return;
-  offsetX = offsetY = 0;
-  scale = image.width > image.height ? canvas.width / image.width : canvas.height / image.height;
-  centerImage();
+  const canvasRatio = canvas.width / canvas.height;
+  const imageRatio = image.width / image.height;
+  if (imageRatio > canvasRatio) {
+    scale = canvas.width / image.width;
+  } else {
+    scale = canvas.height / image.height;
+  }
+  offsetX = (canvas.width - image.width * scale) / 2;
+  offsetY = (canvas.height - image.height * scale) / 2;
+  drawImage();
 };
 
 const centerImage = () => {
@@ -265,36 +273,40 @@ const downloadNews = () => {
   imageCounter++;
 };
 
-// Mouse drag move
+// Dragging
 canvas.addEventListener('mousedown', (e) => {
   isDragging = true;
-  lastX = e.offsetX;
-  lastY = e.offsetY;
+  startX = e.offsetX - offsetX;
+  startY = e.offsetY - offsetY;
 });
 canvas.addEventListener('mousemove', (e) => {
-  if (isDragging && image) {
-    const dx = (e.offsetX - lastX);
-    const dy = (e.offsetY - lastY);
-    offsetX += dx;
-    offsetY += dy;
-    lastX = e.offsetX;
-    lastY = e.offsetY;
+  if (isDragging) {
+    offsetX = e.offsetX - startX;
+    offsetY = e.offsetY - startY;
     drawImage();
   }
 });
-canvas.addEventListener('mouseup', () => isDragging = false);
-canvas.addEventListener('mouseleave', () => isDragging = false);
+canvas.addEventListener('mouseup', () => {
+  isDragging = false;
+});
+canvas.addEventListener('mouseleave', () => {
+  isDragging = false;
+});
 
-// Mouse Scroll zoom
+// Zoom with scroll
 canvas.addEventListener('wheel', (e) => {
+  if (!image) return;
   e.preventDefault();
-  const scaleAmount = 0.05;
-  if (e.deltaY < 0) {
-    scale += scaleAmount;
-  } else {
-    scale -= scaleAmount;
-  }
-  scale = Math.min(Math.max(0.2, scale), 5); // Zoom limits
+  const scaleAmount = -e.deltaY * 0.0015; // Smooth zoom
+  const mouseX = e.offsetX;
+  const mouseY = e.offsetY;
+  const prevScale = scale;
+  scale += scaleAmount;
+  scale = Math.min(Math.max(0.1, scale), 10);
+
+  offsetX = mouseX - (mouseX - offsetX) * (scale / prevScale);
+  offsetY = mouseY - (mouseY - offsetY) * (scale / prevScale);
+
   drawImage();
 });
 
@@ -305,8 +317,8 @@ centerButton.addEventListener('click', centerImage);
 generateButton.addEventListener('click', generateNewsCanvas);
 downloadCanvasButton.addEventListener('click', downloadCanvas);
 downloadNewsButton.addEventListener('click', downloadNews);
-
 </script>
+
 
 
 
