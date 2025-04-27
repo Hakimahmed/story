@@ -119,6 +119,9 @@
         <button id="generateButton">Generate Story</button>
         <button id="downloadCanvasButton">Download Original</button>
         <button id="downloadNewsButton">Download Story</button>
+        <button id="resetButton">Reset Image</button>
+<span id="zoomDisplay">Zoom: 100%</span>
+
       </div>
     </div>
   </div>
@@ -136,6 +139,10 @@ const centerButton = document.getElementById('centerButton');
 const generateButton = document.getElementById('generateButton');
 const downloadCanvasButton = document.getElementById('downloadCanvasButton');
 const downloadNewsButton = document.getElementById('downloadNewsButton');
+
+// NEW ELEMENTS for PRO
+const resetButton = document.getElementById('resetButton');
+const zoomDisplay = document.getElementById('zoomDisplay');
 
 const backgroundImage = new Image();
 backgroundImage.src = 'storybg.jpg';
@@ -166,7 +173,8 @@ const handlePaste = (e) => {
 const loadImage = (src) => {
   image = new Image();
   image.onload = () => {
-    fitOnLongestSide();
+    fitOnLongestSide(); // Auto center after pasting
+    updateZoomDisplay();
   };
   image.src = src;
 };
@@ -197,6 +205,7 @@ const fitOnLongestSide = () => {
   offsetX = (canvas.width - image.width * scale) / 2;
   offsetY = (canvas.height - image.height * scale) / 2;
   drawImage();
+  updateZoomDisplay();
 };
 
 const centerImage = () => {
@@ -297,7 +306,7 @@ canvas.addEventListener('mouseleave', () => {
 canvas.addEventListener('wheel', (e) => {
   if (!image) return;
   e.preventDefault();
-  const scaleAmount = -e.deltaY * 0.0015; // Smooth zoom
+  const scaleAmount = -e.deltaY * 0.0015;
   const mouseX = e.offsetX;
   const mouseY = e.offsetY;
   const prevScale = scale;
@@ -308,7 +317,22 @@ canvas.addEventListener('wheel', (e) => {
   offsetY = mouseY - (mouseY - offsetY) * (scale / prevScale);
 
   drawImage();
+  updateZoomDisplay();
 });
+
+// Reset Button
+resetButton.addEventListener('click', () => {
+  if (!image) return;
+  fitOnLongestSide();
+  updateZoomDisplay();
+});
+
+// Zoom Percentage Display
+const updateZoomDisplay = () => {
+  if (zoomDisplay) {
+    zoomDisplay.textContent = `Zoom: ${(scale * 100).toFixed(0)}%`;
+  }
+};
 
 document.addEventListener('paste', handlePaste);
 stretchButton.addEventListener('click', fitByStretch);
@@ -318,6 +342,7 @@ generateButton.addEventListener('click', generateNewsCanvas);
 downloadCanvasButton.addEventListener('click', downloadCanvas);
 downloadNewsButton.addEventListener('click', downloadNews);
 </script>
+
 
 
 
