@@ -257,13 +257,13 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1450) => {
   ctx.shadowBlur = 0;
   ctx.direction = 'rtl';
   ctx.fillStyle = '#006163';
-  ctx.font = 'bold 88px "Urdu Najd V3", serif';
+  ctx.font = '88px "Urdu Najd V3", serif';
 
   let yPos = y;
   for (let i = 0; i < words.length; i++) {
     let word = words[i];
     const isNumber = /^\d+$/.test(word);
-    ctx.font = `bold 70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
+    ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
     const testLine = line + word + ' ';
     const width = ctx.measureText(testLine).width;
     if (width > newsCanvas.width - 120 && i > 0) {
