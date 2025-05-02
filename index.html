@@ -150,6 +150,7 @@ const centerButton = document.getElementById('centerButton');
 const generateButton = document.getElementById('generateButton');
 const downloadCanvasButton = document.getElementById('downloadCanvasButton');
 const downloadNewsButton = document.getElementById('downloadNewsButton');
+
 const resetButton = document.getElementById('resetButton');
 const zoomDisplay = document.getElementById('zoomDisplay');
 
@@ -241,33 +242,43 @@ const generateNewsCanvas = () => {
   canvasImage.src = canvas.toDataURL('image/png');
 };
 
-const drawLine = (ctx, lineText, y) => {
-  const words = lineText.trim().split(' ');
-  let totalWidth = 0;
-  const wordData = [];
+// Tokenize Urdu + Numbers + Punctuation
+function tokenize(text) {
+  return text.match(/[\u0600-\u06FF]+|\d+|[^\s]/g) || [];
+}
 
-  for (let word of words) {
-    const isNumber = /^\d+$/.test(word);
+// Draw a line of tokens with RTL support
+function drawLine(ctx, tokens, y) {
+  let totalWidth = 0;
+  const tokenData = [];
+
+  for (let token of tokens) {
+    const isNumber = /^\d+$/.test(token);
     ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
-    const width = ctx.measureText(word + ' ').width;
-    wordData.push({ word, width, isNumber });
+    const width = ctx.measureText(token + ' ').width;
+    tokenData.push({ token, width, isNumber });
     totalWidth += width;
   }
 
   let x = (newsCanvas.width - totalWidth) / 2;
-  for (let item of wordData) {
-    ctx.font = `70px ${item.isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
-    ctx.fillText(item.word, x, y);
-    x += item.width;
-  }
-};
 
-const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
-  const words = text.split(' ');
+  for (let { token, width, isNumber } of tokenData) {
+    ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
+    ctx.fillText(token, x, y);
+    x += width;
+  }
+}
+
+// Render multiline headline with correct wrapping
+function drawHeadline(ctx, text, x = newsCanvas.width / 2, y = 1400) {
+  const tokens = tokenize(text);
   const lineHeight = 110;
-  let line = '';
-  ctx.textAlign = 'center';
+  let currentLine = [];
+  let currentWidth = 0;
+  let yPos = y;
+
   ctx.textBaseline = 'top';
+  ctx.textAlign = 'center';
   ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 2;
@@ -275,21 +286,26 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
   ctx.direction = 'rtl';
   ctx.fillStyle = '#006163';
 
-  let yPos = y;
-  for (let i = 0; i < words.length; i++) {
-    const testLine = line + words[i] + ' ';
-    ctx.font = '70px "Urdu Najd V3"';
-    const width = ctx.measureText(testLine).width;
-    if (width > newsCanvas.width - 120 && i > 0) {
-      drawLine(ctx, line, yPos);
-      line = words[i] + ' ';
+  for (let token of tokens) {
+    const isNumber = /^\d+$/.test(token);
+    ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
+    const width = ctx.measureText(token + ' ').width;
+
+    if (currentWidth + width > newsCanvas.width - 120) {
+      drawLine(ctx, currentLine, yPos);
       yPos += lineHeight;
+      currentLine = [token];
+      currentWidth = width;
     } else {
-      line = testLine;
+      currentLine.push(token);
+      currentWidth += width;
     }
   }
-  drawLine(ctx, line, yPos);
-};
+
+  if (currentLine.length > 0) {
+    drawLine(ctx, currentLine, yPos);
+  }
+}
 
 const downloadCanvas = () => {
   const link = document.createElement('a');
@@ -307,6 +323,7 @@ const downloadNews = () => {
   imageCounter++;
 };
 
+// Dragging
 canvas.addEventListener('mousedown', (e) => {
   isDragging = true;
   startX = e.offsetX - offsetX;
@@ -319,13 +336,10 @@ canvas.addEventListener('mousemove', (e) => {
     drawImage();
   }
 });
-canvas.addEventListener('mouseup', () => {
-  isDragging = false;
-});
-canvas.addEventListener('mouseleave', () => {
-  isDragging = false;
-});
+canvas.addEventListener('mouseup', () => { isDragging = false; });
+canvas.addEventListener('mouseleave', () => { isDragging = false; });
 
+// Zoom with scroll
 canvas.addEventListener('wheel', (e) => {
   if (!image) return;
   e.preventDefault();
@@ -335,18 +349,22 @@ canvas.addEventListener('wheel', (e) => {
   const prevScale = scale;
   scale += scaleAmount;
   scale = Math.min(Math.max(0.1, scale), 10);
+
   offsetX = mouseX - (mouseX - offsetX) * (scale / prevScale);
   offsetY = mouseY - (mouseY - offsetY) * (scale / prevScale);
+
   drawImage();
   updateZoomDisplay();
 });
 
+// Reset Button
 resetButton.addEventListener('click', () => {
   if (!image) return;
   fitOnLongestSide();
   updateZoomDisplay();
 });
 
+// Zoom Display
 const updateZoomDisplay = () => {
   if (zoomDisplay) {
     zoomDisplay.textContent = `Zoom: ${(scale * 100).toFixed(0)}%`;
@@ -361,6 +379,7 @@ generateButton.addEventListener('click', generateNewsCanvas);
 downloadCanvasButton.addEventListener('click', downloadCanvas);
 downloadNewsButton.addEventListener('click', downloadNews);
 </script>
+
 
 
 
