@@ -261,38 +261,63 @@ function drawLine(ctx, tokens, startY) {
 }
 
 
-function drawHeadline(ctx, text, x = 0, y = 1400) {
-  const tokens = tokenize(text);
+const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
+  const padding = 60;
+  const maxWidth = newsCanvas.width - padding * 2;
   const lineHeight = 110;
-  const maxWidth = newsCanvas.width - 120;
 
+  const tokens = text.trim().split(/\s+/); // Split into words/numbers
+  const lines = [];
+  let currentLine = [];
+  let currentLineWidth = 0;
+
+  // Prepare for RTL layout
   ctx.textBaseline = 'top';
+  ctx.textAlign = 'right';
   ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 2;
   ctx.shadowBlur = 0;
-  ctx.fillStyle = '#006163';
   ctx.direction = 'rtl';
-  ctx.textAlign = 'right';
 
-  let currentLine = [];
-  let currentWidth = 0;
-
-  for (let token of tokens) {
+  // Build lines manually
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
     const isNumber = /^\d+$/.test(token);
     ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
-    const width = ctx.measureText(token + ' ').width;
+    const tokenWidth = ctx.measureText(token + ' ').width;
 
-    if (currentWidth + width > maxWidth) {
-      drawLine(ctx, currentLine, y);
-      y += lineHeight;
+    if (currentLineWidth + tokenWidth > maxWidth && currentLine.length > 0) {
+      lines.push([...currentLine]);
       currentLine = [token];
-      currentWidth = width;
+      currentLineWidth = tokenWidth;
     } else {
       currentLine.push(token);
-      currentWidth += width;
+      currentLineWidth += tokenWidth;
     }
   }
+
+  if (currentLine.length > 0) {
+    lines.push(currentLine);
+  }
+
+  // Draw lines bottom-up for RTL
+  let startY = y;
+  for (let line of lines) {
+    let currentX = newsCanvas.width - padding;
+    for (let j = 0; j < line.length; j++) {
+      const token = line[j];
+      const isNumber = /^\d+$/.test(token);
+      ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
+      const tokenWidth = ctx.measureText(token + ' ').width;
+      ctx.fillStyle = '#006163';
+      ctx.fillText(token + ' ', currentX, startY);
+      currentX -= tokenWidth;
+    }
+    startY += lineHeight;
+  }
+};
+
 
   if (currentLine.length > 0) {
     drawLine(ctx, currentLine, y);
