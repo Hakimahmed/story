@@ -150,8 +150,6 @@ const centerButton = document.getElementById('centerButton');
 const generateButton = document.getElementById('generateButton');
 const downloadCanvasButton = document.getElementById('downloadCanvasButton');
 const downloadNewsButton = document.getElementById('downloadNewsButton');
-
-// NEW ELEMENTS for PRO
 const resetButton = document.getElementById('resetButton');
 const zoomDisplay = document.getElementById('zoomDisplay');
 
@@ -184,7 +182,7 @@ const handlePaste = (e) => {
 const loadImage = (src) => {
   image = new Image();
   image.onload = () => {
-    fitOnLongestSide(); // Auto center after pasting
+    fitOnLongestSide();
     updateZoomDisplay();
   };
   image.src = src;
@@ -208,11 +206,9 @@ const fitOnLongestSide = () => {
   if (!image) return;
   const canvasRatio = canvas.width / canvas.height;
   const imageRatio = image.width / image.height;
-  if (imageRatio > canvasRatio) {
-    scale = canvas.width / image.width;
-  } else {
-    scale = canvas.height / image.height;
-  }
+  scale = imageRatio > canvasRatio
+    ? canvas.width / image.width
+    : canvas.height / image.height;
   offsetX = (canvas.width - image.width * scale) / 2;
   offsetY = (canvas.height - image.height * scale) / 2;
   drawImage();
@@ -245,6 +241,27 @@ const generateNewsCanvas = () => {
   canvasImage.src = canvas.toDataURL('image/png');
 };
 
+const drawLine = (ctx, lineText, y) => {
+  const words = lineText.trim().split(' ');
+  let totalWidth = 0;
+  const wordData = [];
+
+  for (let word of words) {
+    const isNumber = /^\d+$/.test(word);
+    ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
+    const width = ctx.measureText(word + ' ').width;
+    wordData.push({ word, width, isNumber });
+    totalWidth += width;
+  }
+
+  let x = (newsCanvas.width - totalWidth) / 2;
+  for (let item of wordData) {
+    ctx.font = `70px ${item.isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
+    ctx.fillText(item.word, x, y);
+    x += item.width;
+  }
+};
+
 const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
   const words = text.split(' ');
   const lineHeight = 110;
@@ -257,24 +274,21 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
   ctx.shadowBlur = 0;
   ctx.direction = 'rtl';
   ctx.fillStyle = '#006163';
-  ctx.font = '88px "Urdu Najd V3", serif';
 
   let yPos = y;
   for (let i = 0; i < words.length; i++) {
-    let word = words[i];
-    const isNumber = /^\d+$/.test(word);
-    ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
-    const testLine = line + word + ' ';
+    const testLine = line + words[i] + ' ';
+    ctx.font = '70px "Urdu Najd V3"';
     const width = ctx.measureText(testLine).width;
     if (width > newsCanvas.width - 120 && i > 0) {
-      ctx.fillText(line.trim(), x, yPos);
-      line = word + ' ';
+      drawLine(ctx, line, yPos);
+      line = words[i] + ' ';
       yPos += lineHeight;
     } else {
       line = testLine;
     }
   }
-  ctx.fillText(line.trim(), x, yPos);
+  drawLine(ctx, line, yPos);
 };
 
 const downloadCanvas = () => {
@@ -293,7 +307,6 @@ const downloadNews = () => {
   imageCounter++;
 };
 
-// Dragging
 canvas.addEventListener('mousedown', (e) => {
   isDragging = true;
   startX = e.offsetX - offsetX;
@@ -313,7 +326,6 @@ canvas.addEventListener('mouseleave', () => {
   isDragging = false;
 });
 
-// Zoom with scroll
 canvas.addEventListener('wheel', (e) => {
   if (!image) return;
   e.preventDefault();
@@ -323,22 +335,18 @@ canvas.addEventListener('wheel', (e) => {
   const prevScale = scale;
   scale += scaleAmount;
   scale = Math.min(Math.max(0.1, scale), 10);
-
   offsetX = mouseX - (mouseX - offsetX) * (scale / prevScale);
   offsetY = mouseY - (mouseY - offsetY) * (scale / prevScale);
-
   drawImage();
   updateZoomDisplay();
 });
 
-// Reset Button
 resetButton.addEventListener('click', () => {
   if (!image) return;
   fitOnLongestSide();
   updateZoomDisplay();
 });
 
-// Zoom Percentage Display
 const updateZoomDisplay = () => {
   if (zoomDisplay) {
     zoomDisplay.textContent = `Zoom: ${(scale * 100).toFixed(0)}%`;
@@ -353,6 +361,7 @@ generateButton.addEventListener('click', generateNewsCanvas);
 downloadCanvasButton.addEventListener('click', downloadCanvas);
 downloadNewsButton.addEventListener('click', downloadNews);
 </script>
+
 
 
 
