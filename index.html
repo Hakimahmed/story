@@ -251,7 +251,7 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
   let currentLineWidth = 0;
 
   ctx.textBaseline = 'top';
-  ctx.textAlign = 'right';
+  ctx.textAlign = 'left'; // We'll calculate center manually
   ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 2;
@@ -260,7 +260,7 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
-    const isNumber = /^\d+$/.test(token);
+    const isNumber = /^[0-9]+$/.test(token);
     ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
     const tokenWidth = ctx.measureText(token + ' ').width;
 
@@ -279,20 +279,28 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
   }
 
   let startY = y;
-  for (let line of lines) {
-    let currentX = newsCanvas.width - padding;
-    for (let j = 0; j < line.length; j++) {
-      const token = line[j];
-      const isNumber = /^\d+$/.test(token);
+  for (const line of lines) {
+    let totalLineWidth = 0;
+    for (const token of line) {
+      const isNumber = /^[0-9]+$/.test(token);
+      ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
+      totalLineWidth += ctx.measureText(token + ' ').width;
+    }
+
+    let currentX = (newsCanvas.width - totalLineWidth) / 2;
+
+    for (const token of line) {
+      const isNumber = /^[0-9]+$/.test(token);
       ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
       ctx.fillStyle = '#006163';
-      const tokenWidth = ctx.measureText(token + ' ').width;
       ctx.fillText(token + ' ', currentX, startY);
-      currentX -= tokenWidth;
+      currentX += ctx.measureText(token + ' ').width;
     }
+
     startY += lineHeight;
   }
 };
+
 
 const downloadCanvas = () => {
   const link = document.createElement('a');
