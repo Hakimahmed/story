@@ -239,39 +239,17 @@ const generateNewsCanvas = () => {
   canvasImage.src = canvas.toDataURL('image/png');
 };
 
-const tokenize = (text) => {
-  return text.match(/[\u0600-\u06FF]+|[\d]+|[^\s\u0600-\u06FF\d]+/g) || [];
-};
-
-function drawLine(ctx, tokens, startY) {
-  const padding = 60;
-  let x = newsCanvas.width - padding;
-
-  for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i];
-    const isNumber = /^\d+$/.test(token);
-
-    ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
-    const text = token + ' ';
-    const width = ctx.measureText(text).width;
-
-    x -= width;
-    ctx.fillText(text, x, startY);
-  }
-}
-
-
+// ✅ FIXED drawHeadline FUNCTION
 const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
   const padding = 60;
   const maxWidth = newsCanvas.width - padding * 2;
   const lineHeight = 110;
 
-  const tokens = text.trim().split(/\s+/); // Split into words/numbers
+  const tokens = text.trim().split(/\s+/);
   const lines = [];
   let currentLine = [];
   let currentLineWidth = 0;
 
-  // Prepare for RTL layout
   ctx.textBaseline = 'top';
   ctx.textAlign = 'right';
   ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
@@ -280,7 +258,6 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
   ctx.shadowBlur = 0;
   ctx.direction = 'rtl';
 
-  // Build lines manually
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
     const isNumber = /^\d+$/.test(token);
@@ -301,7 +278,6 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
     lines.push(currentLine);
   }
 
-  // Draw lines bottom-up for RTL
   let startY = y;
   for (let line of lines) {
     let currentX = newsCanvas.width - padding;
@@ -309,20 +285,14 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
       const token = line[j];
       const isNumber = /^\d+$/.test(token);
       ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
-      const tokenWidth = ctx.measureText(token + ' ').width;
       ctx.fillStyle = '#006163';
+      const tokenWidth = ctx.measureText(token + ' ').width;
       ctx.fillText(token + ' ', currentX, startY);
       currentX -= tokenWidth;
     }
     startY += lineHeight;
   }
 };
-
-
-  if (currentLine.length > 0) {
-    drawLine(ctx, currentLine, y);
-  }
-}
 
 const downloadCanvas = () => {
   const link = document.createElement('a');
@@ -353,14 +323,10 @@ canvas.addEventListener('mousemove', (e) => {
     drawImage();
   }
 });
-canvas.addEventListener('mouseup', () => {
-  isDragging = false;
-});
-canvas.addEventListener('mouseleave', () => {
-  isDragging = false;
-});
+canvas.addEventListener('mouseup', () => isDragging = false);
+canvas.addEventListener('mouseleave', () => isDragging = false);
 
-// Zoom with scroll
+// Zoom
 canvas.addEventListener('wheel', (e) => {
   if (!image) return;
   e.preventDefault();
@@ -368,22 +334,21 @@ canvas.addEventListener('wheel', (e) => {
   const mouseX = e.offsetX;
   const mouseY = e.offsetY;
   const prevScale = scale;
-  scale += scaleAmount;
-  scale = Math.min(Math.max(0.1, scale), 10);
-
+  scale = Math.min(Math.max(0.1, scale + scaleAmount), 10);
   offsetX = mouseX - (mouseX - offsetX) * (scale / prevScale);
   offsetY = mouseY - (mouseY - offsetY) * (scale / prevScale);
-
   drawImage();
   updateZoomDisplay();
 });
 
+// Reset
 resetButton.addEventListener('click', () => {
   if (!image) return;
   fitOnLongestSide();
   updateZoomDisplay();
 });
 
+// Zoom Display
 const updateZoomDisplay = () => {
   if (zoomDisplay) {
     zoomDisplay.textContent = `Zoom: ${(scale * 100).toFixed(0)}%`;
@@ -398,6 +363,7 @@ generateButton.addEventListener('click', generateNewsCanvas);
 downloadCanvasButton.addEventListener('click', downloadCanvas);
 downloadNewsButton.addEventListener('click', downloadNews);
 </script>
+
 
 
 
