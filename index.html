@@ -150,7 +150,6 @@ const centerButton = document.getElementById('centerButton');
 const generateButton = document.getElementById('generateButton');
 const downloadCanvasButton = document.getElementById('downloadCanvasButton');
 const downloadNewsButton = document.getElementById('downloadNewsButton');
-
 const resetButton = document.getElementById('resetButton');
 const zoomDisplay = document.getElementById('zoomDisplay');
 
@@ -207,9 +206,7 @@ const fitOnLongestSide = () => {
   if (!image) return;
   const canvasRatio = canvas.width / canvas.height;
   const imageRatio = image.width / image.height;
-  scale = imageRatio > canvasRatio
-    ? canvas.width / image.width
-    : canvas.height / image.height;
+  scale = imageRatio > canvasRatio ? canvas.width / image.width : canvas.height / image.height;
   offsetX = (canvas.width - image.width * scale) / 2;
   offsetY = (canvas.height - image.height * scale) / 2;
   drawImage();
@@ -242,58 +239,56 @@ const generateNewsCanvas = () => {
   canvasImage.src = canvas.toDataURL('image/png');
 };
 
-// Tokenize Urdu + Numbers + Punctuation
-function tokenize(text) {
-  return text.match(/[\u0600-\u06FF]+|\d+|[^\s]/g) || [];
-}
+const tokenize = (text) => {
+  return text.match(/[\u0600-\u06FF]+|[\d]+|[^\s\u0600-\u06FF\d]+/g) || [];
+};
 
-// Draw a line of tokens with RTL support
-function drawLine(ctx, tokens, y) {
+function drawLine(ctx, tokens, startY) {
+  const padding = 60;
   let totalWidth = 0;
-  const tokenData = [];
 
-  for (let token of tokens) {
+  const tokenData = tokens.map(token => {
     const isNumber = /^\d+$/.test(token);
     ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
     const width = ctx.measureText(token + ' ').width;
-    tokenData.push({ token, width, isNumber });
     totalWidth += width;
-  }
+    return { token, width, isNumber };
+  });
 
-  let x = (newsCanvas.width - totalWidth) / 2;
-
-  for (let { token, width, isNumber } of tokenData) {
+  let x = newsCanvas.width - padding;
+  for (let i = 0; i < tokenData.length; i++) {
+    const { token, width, isNumber } = tokenData[i];
     ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
-    ctx.fillText(token, x, y);
-    x += width;
+    ctx.fillText(token, x - width, startY);
+    x -= width;
   }
 }
 
-// Render multiline headline with correct wrapping
-function drawHeadline(ctx, text, x = newsCanvas.width / 2, y = 1400) {
+function drawHeadline(ctx, text, x = 0, y = 1400) {
   const tokens = tokenize(text);
   const lineHeight = 110;
-  let currentLine = [];
-  let currentWidth = 0;
-  let yPos = y;
+  const maxWidth = newsCanvas.width - 120;
 
   ctx.textBaseline = 'top';
-  ctx.textAlign = 'center';
   ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 2;
   ctx.shadowBlur = 0;
-  ctx.direction = 'rtl';
   ctx.fillStyle = '#006163';
+  ctx.direction = 'rtl';
+  ctx.textAlign = 'right';
+
+  let currentLine = [];
+  let currentWidth = 0;
 
   for (let token of tokens) {
     const isNumber = /^\d+$/.test(token);
     ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
     const width = ctx.measureText(token + ' ').width;
 
-    if (currentWidth + width > newsCanvas.width - 120) {
-      drawLine(ctx, currentLine, yPos);
-      yPos += lineHeight;
+    if (currentWidth + width > maxWidth) {
+      drawLine(ctx, currentLine, y);
+      y += lineHeight;
       currentLine = [token];
       currentWidth = width;
     } else {
@@ -303,7 +298,7 @@ function drawHeadline(ctx, text, x = newsCanvas.width / 2, y = 1400) {
   }
 
   if (currentLine.length > 0) {
-    drawLine(ctx, currentLine, yPos);
+    drawLine(ctx, currentLine, y);
   }
 }
 
@@ -336,8 +331,12 @@ canvas.addEventListener('mousemove', (e) => {
     drawImage();
   }
 });
-canvas.addEventListener('mouseup', () => { isDragging = false; });
-canvas.addEventListener('mouseleave', () => { isDragging = false; });
+canvas.addEventListener('mouseup', () => {
+  isDragging = false;
+});
+canvas.addEventListener('mouseleave', () => {
+  isDragging = false;
+});
 
 // Zoom with scroll
 canvas.addEventListener('wheel', (e) => {
@@ -357,14 +356,12 @@ canvas.addEventListener('wheel', (e) => {
   updateZoomDisplay();
 });
 
-// Reset Button
 resetButton.addEventListener('click', () => {
   if (!image) return;
   fitOnLongestSide();
   updateZoomDisplay();
 });
 
-// Zoom Display
 const updateZoomDisplay = () => {
   if (zoomDisplay) {
     zoomDisplay.textContent = `Zoom: ${(scale * 100).toFixed(0)}%`;
@@ -379,6 +376,7 @@ generateButton.addEventListener('click', generateNewsCanvas);
 downloadCanvasButton.addEventListener('click', downloadCanvas);
 downloadNewsButton.addEventListener('click', downloadNews);
 </script>
+
 
 
 
