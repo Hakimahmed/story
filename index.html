@@ -297,16 +297,12 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
       currentX += ctx.measureText(token + ' ').width;
     }
 */
-for (const token of line) {
-  const isNumber = /^[0-9]+$/.test(token);
-  ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
-  ctx.fillStyle = '#006163';
+// 👉 Join full line with space, wrap with RTL embedding markers
+const lineText = '\u202B' + line.join(' ') + '\u202C';
+ctx.font = '70px "Urdu Najd V3"';
+ctx.fillStyle = '#006163';
+ctx.fillText(lineText, currentX, startY);
 
-  // 👉 Ensuring numbers render RTL by adding RIGHT-TO-LEFT MARK (RLM)
-  const renderedToken = isNumber ? '\u200F' + token + ' ' : token + ' ';
-  ctx.fillText(renderedToken, currentX, startY);
-  currentX += ctx.measureText(renderedToken).width;
-}
 
     startY += lineHeight;
   }
