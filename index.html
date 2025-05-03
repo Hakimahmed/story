@@ -288,7 +288,7 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
     }
 
     let currentX = (newsCanvas.width - totalLineWidth) / 2;
-
+/*
     for (const token of line) {
       const isNumber = /^[0-9]+$/.test(token);
       ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
@@ -296,6 +296,17 @@ const drawHeadline = (ctx, text, x = newsCanvas.width / 2, y = 1400) => {
       ctx.fillText(token + ' ', currentX, startY);
       currentX += ctx.measureText(token + ' ').width;
     }
+*/
+for (const token of line) {
+  const isNumber = /^[0-9]+$/.test(token);
+  ctx.font = `70px ${isNumber ? 'Arial' : '"Urdu Najd V3"'}`;
+  ctx.fillStyle = '#006163';
+
+  // 👉 Ensuring numbers render RTL by adding RIGHT-TO-LEFT MARK (RLM)
+  const renderedToken = isNumber ? '\u200F' + token + ' ' : token + ' ';
+  ctx.fillText(renderedToken, currentX, startY);
+  currentX += ctx.measureText(renderedToken).width;
+}
 
     startY += lineHeight;
   }
